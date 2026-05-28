@@ -14,7 +14,7 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-PUBLIC_DIR = os.path.join(os.path.dirname(__file__), '..', 'public')
+PUBLIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'public')
 
 @app.route('/')
 def index():
@@ -22,7 +22,11 @@ def index():
 
 @app.route('/<path:filename>')
 def static_files(filename):
-    return send_from_directory(PUBLIC_DIR, filename)
+    # Serve the file if it exists, otherwise fall back to index.html
+    filepath = os.path.join(PUBLIC_DIR, filename)
+    if os.path.isfile(filepath):
+        return send_from_directory(PUBLIC_DIR, filename)
+    return send_from_directory(PUBLIC_DIR, 'index.html')
 
 # ─── STOCK UNIVERSES ────────────────────────────────────────────────────
 
