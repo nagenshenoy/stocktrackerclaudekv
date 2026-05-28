@@ -1,6 +1,7 @@
 # Vercel serverless function config
 # https://vercel.com/docs/functions/configuring-functions/duration
-maxDuration = 30
+config = {"maxDuration": 30}
+
 
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
@@ -14,17 +15,20 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-PUBLIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'public')
+PUBLIC_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'public'))
 
 @app.route('/')
+@app.route('/api/index.py')
+@app.route('/api/index')
 def index():
     return send_from_directory(PUBLIC_DIR, 'index.html')
 
 @app.route('/<path:filename>')
 def static_files(filename):
-    # Serve the file if it exists, otherwise fall back to index.html
-    filepath = os.path.join(PUBLIC_DIR, filename)
-    if os.path.isfile(filepath):
+    # Local/dev SPA fallback only. In Vercel, public/index.html is served statically.
+    # Keep this route so `python api/index.py` still opens the app at / and supports refreshes.
+    safe_path = os.path.abspath(os.path.join(PUBLIC_DIR, filename))
+    if safe_path.startswith(PUBLIC_DIR) and os.path.isfile(safe_path):
         return send_from_directory(PUBLIC_DIR, filename)
     return send_from_directory(PUBLIC_DIR, 'index.html')
 

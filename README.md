@@ -4,6 +4,12 @@ Unified NSE/BSE dashboard — five sector trackers in one single-page app with
 collapsible sidebar navigation, lazy loading, dark/light theme, and full
 Vercel-ready deployment.
 
+## Vercel 404 Fix Included
+
+This package serves `public/index.html` directly for `/` and all non-API routes,
+while `/api/*` routes are handled by `api/index.py`. This prevents the home page
+from being rewritten into Flask incorrectly and showing `Not Found` on Vercel.
+
 ## Trackers
 
 | # | Tracker | Accent | Stocks | Exchange |
@@ -38,7 +44,7 @@ integrated-tracker/
 ├── public/
 │   └── index.html     # Complete single-page application
 ├── requirements.txt
-├── vercel.json        # Vercel v2 — @vercel/python + @vercel/static
+├── vercel.json        # Vercel v2 routes — static home + Python API
 └── README.md
 ```
 
