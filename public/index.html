@@ -484,6 +484,56 @@ body.lm tbody tr:hover{background:#e8e4da}
 
 /* Sector tab: tooltip via title attribute (set by JS) */
 .st[title] { cursor: pointer }
+
+/* ── Layout overflow fixes (all trackers) ─────────────────────────
+   Root causes:
+   1. .tw / .hm-box / .scr-box all had overflow:hidden which killed
+      the horizontal scroll of their .tsc / .hm-sc / .scr-sc children.
+      Fix: switch to overflow:clip so border-radius is preserved but
+      scrollable children are no longer clipped.
+   2. Header switcher (.tsw) has no overflow handling with 6 buttons.
+      Fix: allow flex-wrap + shrink padding at narrow widths.
+   3. Stock table inside .tsc had no explicit min-width, so columns
+      compressed instead of triggering the scroll container.
+──────────────────────────────────────────────────────────────────── */
+
+/* Fix 1a — stock table card: switch from overflow:hidden to clip */
+.tw {
+  overflow: clip;           /* preserves border-radius, allows child scroll */
+  overflow-clip-margin: 0;
+}
+/* Fix 1b — tsc needs explicit min-height so collapsed state still clips */
+.tsc { min-height: 0 }
+
+/* Fix 2a — heatmap box: same treatment */
+.hm-box { overflow: clip; overflow-clip-margin: 0 }
+
+/* Fix 2b — screener box: same treatment */
+.scr-box { overflow: clip; overflow-clip-margin: 0 }
+
+/* Fix 3 — stock table explicit min-width so columns don't compress */
+.tsc > table { min-width: 900px }
+
+/* Fix 4 — header switcher: wrap gracefully at narrow widths */
+.tsw {
+  flex-wrap: wrap;
+  border-radius: 12px;
+  max-width: 360px;
+}
+.tbtn { padding: 3px 8px; font-size: 9.5px; letter-spacing: .03em }
+
+/* Fix 4b — at very narrow widths hide switcher (sidebar handles nav) */
+@media (max-width: 860px) { .tsw { display: none } }
+
+/* Fix 5 — hdr-meta: prevent overflow on narrow viewports */
+.hdr-meta { flex-wrap: wrap; row-gap: 4px; overflow: visible }
+
+/* Fix 6 — ensure hm-sc and scr-sc are proper scroll containers */
+.hm-sc  { overflow-x: auto; overflow-y: visible }
+.scr-sc { overflow-x: auto; overflow-y: visible }
+
+/* Fix 7 — srow (sector perf cards): ensure it scrolls, not clips */
+.srow { overflow-x: auto; overflow-y: visible }
 </style>
 </head>
 <body>
