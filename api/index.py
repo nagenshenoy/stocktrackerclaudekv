@@ -414,22 +414,23 @@ def get_quotes():
     results = []
 
     try:
-        # One batched download — much faster than per-ticker .info calls.
-        # Fetches 5-day daily data so we can compute open/close/change.
+        # ── 1. Batched 5-day OHLCV download (price, change, open, high, low, volume)
         raw = yf.download(
             " ".join(all_tickers), period="5d", interval="1d",
             group_by="ticker", auto_adjust=True, progress=False,
         )
         single = len(all_tickers) == 1
 
+        # ── 2. 1-year history (cached) → derive 52-week high/low per ticker
+        hist1y = get_tracker_history(tracker)
+
+        # ── 3. fast_info batch → market_cap (lightweight, no full .info round-trip)
+        tickers_obj = yf.Tickers(" ".join(all_tickers))
+
         for ticker in all_tickers:
             name, sector = ticker_map[ticker]
             try:
-                if single:
-                    cols = raw
-                else:
-                    cols = raw[ticker]
-
+                cols     = raw if single else raw[ticker]
                 close_s  = cols["Close"].dropna()
                 open_s   = cols["Open"].dropna()
                 high_s   = cols["High"].dropna()
@@ -441,27 +442,45 @@ def get_quotes():
 
                 price      = safe_val(float(close_s.iloc[-1]))
                 prev_close = safe_val(float(close_s.iloc[-2]))
-                change     = round(price - prev_close, 2)              if price and prev_close else None
-                change_pct = round((change / prev_close) * 100, 2)     if change and prev_close else None
+                change     = round(price - prev_close, 2)          if price and prev_close else None
+                change_pct = round((change / prev_close) * 100, 2) if change and prev_close else None
+
+                # 52-week high/low from cached 1-year history
+                yr_closes = hist1y.get(ticker, pd.Series([], dtype=float))
+                week52_high = safe_val(round(float(yr_closes.max()), 2)) if len(yr_closes) else None
+                week52_low  = safe_val(round(float(yr_closes.min()), 2)) if len(yr_closes) else None
+
+                # market_cap via fast_info (single lightweight HTTP call per ticker,
+                # but already batched by yf.Tickers above)
+                market_cap = None
+                try:
+                    fi = tickers_obj.tickers[ticker].fast_info
+                    market_cap = safe_val(getattr(fi, "market_cap", None))
+                except Exception:
+                    pass
 
                 results.append({
-                    "name":       name,
-                    "ticker":     ticker,
-                    "sector":     sector,
-                    "price":      price,
-                    "change":     change,
-                    "change_pct": change_pct,
-                    "open":       safe_val(float(open_s.iloc[-1]))   if len(open_s)   else None,
-                    "high":       safe_val(float(high_s.iloc[-1]))   if len(high_s)   else None,
-                    "low":        safe_val(float(low_s.iloc[-1]))    if len(low_s)    else None,
-                    "volume":     safe_val(float(volume_s.iloc[-1])) if len(volume_s) else None,
+                    "name":        name,
+                    "ticker":      ticker,
+                    "sector":      sector,
+                    "price":       price,
+                    "change":      change,
+                    "change_pct":  change_pct,
+                    "open":        safe_val(float(open_s.iloc[-1]))   if len(open_s)   else None,
+                    "high":        safe_val(float(high_s.iloc[-1]))   if len(high_s)   else None,
+                    "low":         safe_val(float(low_s.iloc[-1]))    if len(low_s)    else None,
+                    "volume":      safe_val(float(volume_s.iloc[-1])) if len(volume_s) else None,
+                    "market_cap":  market_cap,
+                    "week52_high": week52_high,
+                    "week52_low":  week52_low,
                 })
             except Exception as e:
                 results.append({
                     "name": name, "ticker": ticker, "sector": sector,
                     "price": None, "change": None, "change_pct": None,
-                    "open": None, "high": None, "low": None,
-                    "volume": None, "error": str(e),
+                    "open": None, "high": None, "low": None, "volume": None,
+                    "market_cap": None, "week52_high": None, "week52_low": None,
+                    "error": str(e),
                 })
 
     except Exception as e:
