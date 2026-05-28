@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>India Stock Tracker Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ═══ DESIGN TOKENS ═══════════════════════════════════════ */
+:root {
+  --bg-primary:   #07070d;
+  --bg-secondary: #0e0e18;
+  --bg-card:      #141424;
+  --bg-hover:     #1c1c32;
+  --border:       #252540;
+  --border-hi:    #353560;
+  --text-primary: #f0f0ff;
+  --text-sec:     #a8a8cc;
+  --text-muted:   #6e6e98;
+  --green:  #00e87a;
+  --red:    #ff3d5a;
+  /* active-tracker accent — set by JS */
+  --acc:     #00d4ff;
+  --acc-dim: rgba(0,212,255,.14);
+  --acc-bd:  rgba(0,212,255,.30);
+  /* per-tracker constants (dark) */
+  --ai-acc: #00d4ff; --ai-dim: rgba(0,212,255,.14); --ai-bd: rgba(0,212,255,.30);
+  --ev-acc: #00e87a; --ev-dim: rgba(0,232,122,.14); --ev-bd: rgba(0,232,122,.30);
+  --en-acc: #ffb347; --en-dim: rgba(255,179,71,.14); --en-bd: rgba(255,179,71,.30);
+  --df-acc: #c084fc; --df-dim: rgba(192,132,252,.14); --df-bd: rgba(192,132,252,.30);
+  --ph-acc: #f472b6; --ph-dim: rgba(244,114,182,.14); --ph-bd: rgba(244,114,182,.30);
+  --sw: 232px;
+  --sc: 60px;
+  --fn: 'JetBrains Mono','Fira Code',monospace;
+  --fs: 'Syne',sans-serif;
+  --r: 6px; --rl: 10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;scroll-behavior:smooth}
+body{background:var(--bg-primary);color:var(--text-primary);font-family:var(--fn);min-height:100vh;overflow-x:hidden;display:flex}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.015) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+/* ═══ SIDEBAR ══════════════════════════════════════════════ */
+#sb{position:fixed;top:0;left:0;bottom:0;width:var(--sw);background:rgba(8,8,16,.97);border-right:1px solid var(--border);backdrop-filter:blur(24px);z-index:200;display:flex;flex-direction:column;transition:width .25s cubic-bezier(.4,0,.2,1);overflow:hidden}
+#sb.col{width:var(--sc)}
+.sb-logo{display:flex;align-items:center;gap:10px;padding:18px 14px 16px;border-bottom:1px solid var(--border);min-height:68px;overflow:hidden;white-space:nowrap}
+.sb-logo-mark{font-size:22px;flex-shrink:0;width:32px;text-align:center}
+.sb-logo-text{font-family:var(--fs);font-size:13px;font-weight:800;color:var(--text-primary);letter-spacing:.02em;line-height:1.3}
+.sb-logo-sub{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+#sb.col .sb-logo-text,#sb.col .sb-logo-sub{opacity:0;pointer-events:none}
+.sb-nav{flex:1;padding:10px 8px;overflow-y:auto}
+.sb-nav::-webkit-scrollbar{width:3px}
+.sb-nav::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:2px}
+.sb-sec{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);padding:0 8px;margin:14px 0 5px;white-space:nowrap;overflow:hidden}
+#sb.col .sb-sec{opacity:0}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r);cursor:pointer;transition:all .15s;border:1px solid transparent;white-space:nowrap;overflow:hidden;margin-bottom:2px;color:var(--text-sec);position:relative}
+.ni:hover{background:var(--bg-card);color:var(--text-primary)}
+.ni.on[data-t="ai"]     {background:var(--ai-dim);border-color:var(--ai-acc);color:var(--ai-acc)}
+.ni.on[data-t="ev"]     {background:var(--ev-dim);border-color:var(--ev-acc);color:var(--ev-acc)}
+.ni.on[data-t="en"]     {background:var(--en-dim);border-color:var(--en-acc);color:var(--en-acc)}
+.ni.on[data-t="defence"]{background:var(--df-dim);border-color:var(--df-acc);color:var(--df-acc)}
+.ni.on[data-t="pharma"] {background:var(--ph-dim);border-color:var(--ph-acc);color:var(--ph-acc)}
+.ni-ic{font-size:16px;flex-shrink:0;width:24px;text-align:center}
+.ni-lb{font-size:12px;font-weight:600;letter-spacing:.02em}
+.ni-bd{margin-left:auto;background:rgba(255,255,255,.08);border-radius:10px;padding:1px 6px;font-size:9px;font-weight:700;flex-shrink:0}
+#sb.col .ni-lb,#sb.col .ni-bd{opacity:0}
+#sb.col .ni:hover::after{content:attr(data-tip);position:absolute;left:calc(var(--sc) + 8px);top:50%;transform:translateY(-50%);background:var(--bg-card);border:1px solid var(--border-hi);border-radius:var(--r);padding:5px 10px;font-size:11px;font-weight:600;color:var(--text-primary);white-space:nowrap;pointer-events:none;z-index:999}
+.sb-div{height:1px;background:var(--border);margin:8px}
+.sb-foot{padding:12px;border-top:1px solid var(--border)}
+.sb-tog{width:100%;background:none;border:1px solid var(--border-hi);border-radius:var(--r);color:var(--text-sec);cursor:pointer;padding:7px;font-family:var(--fn);font-size:11px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;overflow:hidden}
+.sb-tog:hover{border-color:var(--acc);color:var(--acc)}
+.sb-tog-ic{flex-shrink:0}
+#sb.col .sb-tog-lb{opacity:0;width:0}
+
+/* ═══ MAIN WRAP ════════════════════════════════════════════ */
+#mw{margin-left:var(--sw);flex:1;min-height:100vh;display:flex;flex-direction:column;transition:margin-left .25s cubic-bezier(.4,0,.2,1);position:relative;z-index:1}
+#mw.col{margin-left:var(--sc)}
+
+/* ═══ HEADER ═══════════════════════════════════════════════ */
+#hdr{position:sticky;top:0;z-index:100;background:rgba(7,7,13,.94);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 24px}
+#hdr::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--acc);opacity:.6;transition:background .3s}
+.hdr-in{display:flex;align-items:center;justify-content:space-between;height:58px;gap:12px}
+.brand{display:flex;flex-direction:column;gap:1px}
+.brand-t{font-family:var(--fs);font-size:15px;font-weight:700;color:var(--acc);letter-spacing:.02em;white-space:nowrap;transition:color .3s}
+.brand-s{font-size:10px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase}
+.hdr-meta{display:flex;align-items:center;gap:10px;margin-left:auto}
+/* top switcher */
+.tsw{display:flex;gap:3px;background:var(--bg-card);border:1px solid var(--border-hi);border-radius:100px;padding:3px}
+.tbtn{background:none;border:none;border-radius:100px;padding:4px 10px;font-family:var(--fn);font-size:10px;font-weight:700;letter-spacing:.05em;cursor:pointer;transition:all .2s;color:var(--text-sec);white-space:nowrap}
+.tbtn:hover{color:var(--text-primary)}
+.tbtn.on[data-t="ai"]     {background:var(--ai-dim);color:var(--ai-acc)}
+.tbtn.on[data-t="ev"]     {background:var(--ev-dim);color:var(--ev-acc)}
+.tbtn.on[data-t="en"]     {background:var(--en-dim);color:var(--en-acc)}
+.tbtn.on[data-t="defence"]{background:var(--df-dim);color:var(--df-acc)}
+.tbtn.on[data-t="pharma"] {background:var(--ph-dim);color:var(--ph-acc)}
+.mkt-st{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.mkt-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 2s infinite}
+.mkt-dot.off{background:var(--text-muted);box-shadow:none;animation:none}
+.hdr-clk{font-size:13px;color:var(--text-sec);letter-spacing:.04em;font-weight:500}
+.hdr-ref{font-size:11px;color:var(--text-sec);text-align:right;font-weight:500}
+.ref-btn{display:inline-flex;align-items:center;gap:5px;background:var(--bg-card);border:1px solid var(--border-hi);border-radius:6px;padding:4px 12px;cursor:pointer;font-family:var(--fn);font-size:11px;font-weight:600;color:var(--text-sec);letter-spacing:.04em;transition:all .2s;white-space:nowrap;line-height:1.4}
+.ref-btn:hover{border-color:var(--acc);color:var(--acc)}
+.ref-btn:active{transform:scale(.97)}
+.thm-tog{display:flex;align-items:center;gap:7px;background:var(--bg-card);border:1px solid var(--border-hi);border-radius:100px;padding:5px 12px 5px 8px;cursor:pointer;font-family:var(--fn);font-size:11px;font-weight:600;color:var(--text-sec);letter-spacing:.04em;transition:all .2s;white-space:nowrap}
+.thm-tog:hover{border-color:var(--acc);color:var(--acc)}
+.tog-trk{width:30px;height:16px;border-radius:8px;background:var(--border-hi);position:relative;transition:background .25s;flex-shrink:0}
+body.lm .tog-trk{background:var(--acc)}
+.tog-th{position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;transition:transform .25s cubic-bezier(.34,1.56,.64,1);box-shadow:0 1px 3px rgba(0,0,0,.3)}
+body.lm .tog-th{transform:translateX(14px)}
+
+/* ═══ CONTAINER + PANELS ═══════════════════════════════════ */
+.ctn{padding:20px 24px 40px;position:relative;z-index:1;flex:1}
+.tp{display:none}
+.tp.on{display:block;animation:fadeUp .3s ease}
+
+/* ═══ ANIMATIONS ═══════════════════════════════════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ═══ KPI STRIP ════════════════════════════════════════════ */
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px}
+.kc{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s}
+.kc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--acc);opacity:.6}
+.kc:hover{border-color:var(--acc-bd);transform:translateY(-1px)}
+.kc-lb{font-size:10px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-weight:600}
+.kv{font-size:22px;font-weight:800;font-family:var(--fs);color:var(--text-primary);line-height:1}
+.kv.g{color:var(--green)}.kv.r{color:var(--red)}.kv.a{color:var(--acc)}
+.ks{font-size:11px;color:var(--text-sec);margin-top:5px;font-weight:500}
+
+/* ═══ SECTOR TABS ══════════════════════════════════════════ */
+.sec-nav{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.st{background:transparent;border:1px solid var(--border-hi);color:var(--text-sec);font-family:var(--fn);font-size:11px;font-weight:600;letter-spacing:.04em;padding:6px 12px;border-radius:100px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.st:hover{border-color:var(--acc);color:var(--acc);background:var(--acc-dim)}
+.st.on{background:var(--acc-dim);border-color:var(--acc);color:var(--acc);font-weight:700}
+.st .cnt{background:rgba(255,255,255,.1);border-radius:10px;padding:1px 6px;margin-left:4px;font-size:10px}
+
+/* ═══ STOCK TABLE ══════════════════════════════════════════ */
+.tw{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:24px}
+.thb{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text-sec);font-weight:600}
+.tsc{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--bg-secondary);padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:.07em;cursor:pointer;user-select:none;white-space:nowrap;border-bottom:1px solid var(--border-hi);transition:color .15s}
+thead th:hover{color:var(--acc)}
+thead th.srt{color:var(--acc)}
+thead th .sa{margin-left:4px;opacity:.5}
+thead th.srt .sa{opacity:1}
+tbody tr{border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;animation:fadeUp .3s ease both}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--bg-hover)}
+tbody tr.rg{background:rgba(0,232,122,.04)}
+tbody tr.rl{background:rgba(255,61,90,.04)}
+tbody tr.rgs{background:rgba(0,232,122,.09)}
+tbody tr.rls{background:rgba(255,61,90,.09)}
+tbody tr:hover.rg{background:rgba(0,232,122,.11)}
+tbody tr:hover.rl{background:rgba(255,61,90,.11)}
+td{padding:11px 12px;white-space:nowrap;color:var(--text-primary)}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+td.pr{font-weight:700;font-size:13px;color:#fff}
+td.g{color:var(--green);font-weight:700}
+td.r{color:var(--red);font-weight:700}
+td.mu{color:var(--text-sec);font-weight:500}
+.tb{display:inline-block;background:var(--acc-dim);border:1px solid var(--acc-bd);color:var(--acc);font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.05em}
+.cn{font-weight:600;font-family:var(--fs);font-size:13px;color:#fff}
+.sp{display:inline-block;font-size:9px;padding:2px 6px;border-radius:3px;border:1px solid var(--border-hi);color:var(--text-sec);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+
+/* ═══ SKELETON ═════════════════════════════════════════════ */
+.sk{height:14px;background:linear-gradient(90deg,var(--bg-secondary) 25%,var(--border-hi) 50%,var(--bg-secondary) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:3px}
+
+/* ═══ SECTOR PERF CARDS ════════════════════════════════════ */
+.srow{overflow-x:auto;margin-bottom:24px;padding-bottom:4px}
+.srow::-webkit-scrollbar{height:4px}
+.srow::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:2px}
+.sgrid{display:flex;gap:10px;min-width:max-content}
+.scard{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;width:200px;flex-shrink:0;transition:border-color .2s,transform .15s}
+.scard:hover{border-color:var(--border-hi);transform:translateY(-2px)}
+.scard-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.scard-nm{font-family:var(--fs);font-size:12px;font-weight:700;color:var(--text-primary)}
+.scard-ic{font-size:16px}
+.scard-ch{font-size:24px;font-weight:800;font-family:var(--fs);margin-bottom:8px;color:var(--text-primary)}
+.sbar-tr{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:10px}
+.sbar-fl{height:100%;border-radius:2px;transition:width .6s ease}
+.srow2{display:flex;align-items:center;justify-content:space-between;font-size:11px;margin-top:5px;gap:4px}
+.slb{color:var(--text-muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;width:36px}
+.stk{font-family:var(--fn);font-size:11px;font-weight:700;color:var(--text-primary);flex:1}
+.spct{font-family:var(--fn);font-size:11px;font-weight:700;flex-shrink:0}
+
+/* ═══ ERROR + HEADING ══════════════════════════════════════ */
+.err{background:rgba(255,61,90,.1);border:1px solid rgba(255,61,90,.3);border-radius:var(--r);padding:12px 16px;font-size:12px;color:var(--red);margin-bottom:16px;display:none;font-weight:600}
+.sh{font-family:var(--fs);font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:12px;text-transform:uppercase;letter-spacing:.1em}
+
+/* ═══ HEATMAP ══════════════════════════════════════════════ */
+.hmw{margin-top:32px}
+.hmw-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.hmw-t{font-family:var(--fs);font-size:18px;font-weight:700;color:var(--text-primary);letter-spacing:-.01em}
+.hmw-t em{font-style:italic;color:var(--acc);font-weight:600;transition:color .3s}
+.hmw-s{font-family:var(--fn);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted)}
+.hm-box{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.hm-sc{overflow-x:auto}
+.hm-t{width:100%;border-collapse:collapse;font-family:var(--fn);font-size:12px;min-width:700px}
+.hm-t thead tr{background:var(--bg-secondary);border-bottom:2px solid var(--border-hi)}
+.hm-t thead th{padding:10px 16px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);white-space:nowrap;user-select:none;cursor:pointer;transition:color .15s}
+.hm-t thead th:first-child{text-align:left;min-width:220px}
+.hm-t thead th:not(:first-child){text-align:center;min-width:110px}
+.hm-t thead th:hover{color:var(--text-primary)}
+.hm-t thead th.hs{color:var(--acc)}
+.hm-t thead th .ha{margin-left:3px;opacity:.5;font-size:9px}
+.hm-t thead th.hs .ha{opacity:1}
+.hm-t tbody tr{border-bottom:1px solid var(--border);transition:opacity .1s}
+.hm-t tbody tr:last-child{border-bottom:none}
+.hm-t tbody tr:hover{opacity:.88}
+.hm-t td{padding:9px 8px;vertical-align:middle}
+.hm-sc-c{display:flex;align-items:center;gap:10px;padding-left:14px!important}
+.hm-sc-ic{width:28px;height:28px;border-radius:6px;background:var(--bg-secondary);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.hm-sc-nm{font-family:var(--fs);font-size:13px;font-weight:500;color:var(--text-primary)}
+.hm-cnt{font-family:var(--fn);font-size:10px;color:var(--text-muted);margin-left:auto;padding-right:12px}
+.hm-cell{text-align:center;font-weight:700;font-size:13px;padding:8px 6px;border-radius:6px;margin:4px 6px;min-width:78px;display:inline-block;width:calc(100% - 12px);box-sizing:border-box;letter-spacing:.01em}
+td.hmv{padding:5px 6px}
+.hh5{background:#6CC284;color:#0d2b18}.hh30{background:#2E6F40;color:#c8f0d8}.hh75{background:#1a4d2a;color:#80e8a8}
+.hl5{background:#EEEEEE;color:#444}.hn{background:#DADBDD;color:#444}.hd5{background:#EEEEEE;color:#444}
+.hd30{background:#FF4141;color:#fff}.hd75{background:#FF2C2C;color:#fff}.hna{background:transparent;color:var(--text-muted)}
+.hm-leg{display:flex;align-items:center;gap:4px;padding:9px 14px;border-top:1px solid var(--border);background:var(--bg-secondary);font-family:var(--fn);font-size:10px;flex-wrap:wrap;justify-content:space-between}
+.hm-leg-l{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.hm-leg-lb{color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;margin-right:6px}
+.hm-leg-i{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.hm-leg-sw{padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:.03em}
+.hm-leg-sep{color:var(--border-hi);margin:0 2px}
+.hm-leg-r{font-size:10px;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase}
+
+/* ═══ SCREENER ═════════════════════════════════════════════ */
+.scrw{margin-top:32px}
+.scr-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.scr-t{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-sec)}
+.scr-t span{color:var(--acc);transition:color .3s}
+.scr-cnt{font-family:var(--fn);font-size:11px;color:var(--text-muted)}
+.scr-box{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.scr-sc{overflow-x:auto}
+.scr-tbl{width:100%;border-collapse:collapse;font-family:var(--fn);font-size:12px;min-width:860px}
+.scr-tbl thead tr{background:var(--bg-secondary);border-bottom:1px solid var(--border-hi)}
+.scr-tbl thead th{padding:10px 12px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);white-space:nowrap;user-select:none;cursor:pointer;transition:color .15s;border-right:1px solid var(--border)}
+.scr-tbl thead th:last-child{border-right:none}
+.scr-tbl thead th:hover{color:var(--text-primary)}
+.scr-tbl thead th.ss{color:var(--acc)}
+.scr-tbl thead th .sar{margin-left:4px;opacity:.5;font-size:10px}
+.scr-tbl thead th.ss .sar{opacity:1}
+.scr-tbl thead th.nh{text-align:right}
+.scr-tbl tbody tr{border-bottom:1px solid var(--border);transition:filter .1s;cursor:pointer}
+.scr-tbl tbody tr:last-child{border-bottom:none}
+.scr-tbl tbody tr:hover{filter:brightness(1.1)}
+.scr-tbl td{padding:8px 12px;vertical-align:middle;border-right:1px solid rgba(255,255,255,.04)}
+.scr-tbl td:last-child{border-right:none}
+.s-tk{font-weight:700;font-size:12px;color:var(--acc);letter-spacing:.04em}
+.s-co{font-family:var(--fs);font-size:12px;color:var(--text-primary);white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis}
+.s-se{font-family:var(--fs);font-size:10px;color:var(--text-muted);white-space:nowrap}
+.s-pr{text-align:right;font-weight:600;color:var(--text-primary);white-space:nowrap}
+.s-rt{text-align:right;font-weight:600;font-size:11.5px;padding:6px 10px;white-space:nowrap}
+.sh5{background:#6CC284;color:#0f2a1a}.sh30{background:#2E6F40;color:#c8f0d8}.sh75{background:#1a4d2a;color:#80e8a8}
+.sl5{background:#EEEEEE;color:#333}.sn{background:#DADBDD;color:#333}.sd5{background:#EEEEEE;color:#333}
+.sd30{background:#FF4141;color:#fff}.sd75{background:#FF2C2C;color:#fff}.sna{background:transparent;color:var(--text-muted)}
+.scr-leg{display:flex;align-items:center;gap:3px;padding:10px 14px;border-top:1px solid var(--border);background:var(--bg-secondary);font-family:var(--fn);font-size:10px;flex-wrap:wrap}
+.scr-leg-lb{color:var(--text-muted);margin-right:4px}
+.scr-leg-i{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.scr-leg-sw{width:28px;height:14px;border-radius:2px;flex-shrink:0}
+.scr-leg-sep{color:var(--border-hi);margin:0 3px}
+
+/* ═══ MODAL ════════════════════════════════════════════════ */
+#mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(8px);z-index:1000;align-items:center;justify-content:center;padding:20px}
+#mo.on{display:flex;animation:fadeIn .2s ease}
+.mb{background:var(--bg-secondary);border:1px solid var(--border-hi);border-radius:var(--rl);width:100%;max-width:780px;max-height:90vh;overflow-y:auto;animation:slideUp .25s ease;position:relative}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.mhd{display:flex;align-items:flex-start;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid var(--border)}
+.mta{flex:1}
+.mc{font-family:var(--fs);font-size:20px;font-weight:800;color:#fff}
+.mtk{font-size:12px;color:var(--acc);margin-top:3px;font-weight:600;transition:color .3s}
+.mpa{text-align:right}
+.mpr{font-family:var(--fs);font-size:28px;font-weight:800;color:#fff}
+.mch{font-size:14px;font-weight:700;margin-top:2px}
+.mcl{background:none;border:1px solid var(--border-hi);color:var(--text-sec);font-size:18px;width:32px;height:32px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-left:16px;transition:all .15s;flex-shrink:0}
+.mcl:hover{border-color:var(--acc);color:var(--acc)}
+.mbd{padding:20px 24px}
+.ctabs{display:flex;gap:4px;margin-bottom:16px}
+.ctab{background:none;border:1px solid var(--border-hi);color:var(--text-sec);font-family:var(--fn);font-size:11px;font-weight:600;padding:4px 12px;border-radius:4px;cursor:pointer;transition:all .15s}
+.ctab:hover,.ctab.on{border-color:var(--acc);color:var(--acc);background:var(--acc-dim)}
+.cht-c{height:240px;margin-bottom:20px;position:relative}
+#mld{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg-secondary);font-size:12px;color:var(--text-muted)}
+.mmet{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.mi{background:var(--bg-card);border:1px solid var(--border-hi);border-radius:var(--r);padding:12px}
+.mi-lb{font-size:10px;color:var(--text-sec);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;font-weight:600}
+.mi-v{font-size:14px;font-weight:700;color:#fff}
+.mft{padding:14px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.nse-a{display:inline-flex;align-items:center;gap:6px;background:var(--acc-dim);border:1px solid var(--acc-bd);color:var(--acc);font-family:var(--fn);font-size:11px;font-weight:700;padding:6px 14px;border-radius:4px;text-decoration:none;letter-spacing:.04em;transition:all .15s}
+.nse-a:hover{opacity:.82}
+
+/* ═══ FOOTER ═══════════════════════════════════════════════ */
+footer{border-top:1px solid var(--border);padding:20px 24px;text-align:center;font-size:11px;color:var(--text-sec);line-height:1.9;font-weight:500}
+
+/* ═══ LIGHT MODE ═══════════════════════════════════════════ */
+body.lm{
+  --bg-primary:#edeae2;--bg-secondary:#f5f2eb;--bg-card:#f5f2eb;--bg-hover:#ede9df;
+  --border:#d6d0c6;--border-hi:#c4bdb0;
+  --text-primary:#1a1714;--text-sec:#5c574f;--text-muted:#968f84;
+  --green:#2d6a4f;--red:#a93226;
+  --ai-acc:#2a6496;--ai-dim:rgba(42,100,150,.1);--ai-bd:rgba(42,100,150,.3);
+  --ev-acc:#2d6a4f;--ev-dim:rgba(45,106,79,.12);--ev-bd:rgba(45,106,79,.3);
+  --en-acc:#8a6200;--en-dim:rgba(138,98,0,.1);--en-bd:rgba(138,98,0,.3);
+  --df-acc:#7c3aed;--df-dim:rgba(124,58,237,.1);--df-bd:rgba(124,58,237,.3);
+  --ph-acc:#be185d;--ph-dim:rgba(190,24,93,.1);--ph-bd:rgba(190,24,93,.3);
+}
+body.lm::before{background-image:none}
+body.lm #hdr{background:rgba(237,234,226,.97);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+body.lm #sb{background:rgba(237,234,226,.99);border-right:1px solid var(--border)}
+body.lm .sk{background:linear-gradient(90deg,#e8e4da 25%,#d6d0c6 50%,#e8e4da 75%);background-size:200% 100%}
+body.lm .mb{background:#f5f2eb;border:1px solid var(--border-hi)}
+body.lm #mo{background:rgba(26,23,20,.6)}
+body.lm .mc,body.lm .mpr,body.lm td.pr,body.lm .cn,body.lm .mi-v{color:var(--text-primary)!important}
+body.lm .mhd{border-bottom-color:var(--border)}
+body.lm .mft{border-top-color:var(--border);background:#ede9df}
+body.lm .mbd{background:#f5f2eb}
+body.lm .mi{background:#ede9df;border-color:var(--border)}
+body.lm thead th{background:#e4e0d6;color:var(--text-sec);border-bottom-color:var(--border-hi)}
+body.lm .thb{background:#ede9df;border-bottom-color:var(--border)}
+body.lm footer{border-top-color:var(--border);background:#e4e0d6}
+body.lm .hm-sc-ic{background:#ede9df;border-color:var(--border)}
+body.lm .hl5,body.lm .hd5,body.lm .sl5,body.lm .sd5{color:#555}
+body.lm .hn,body.lm .sn{color:#444}
+body.lm tbody tr.rg{background:rgba(45,106,79,.07)}
+body.lm tbody tr.rl{background:rgba(169,50,38,.06)}
+body.lm tbody tr.rgs{background:rgba(45,106,79,.14)}
+body.lm tbody tr.rls{background:rgba(169,50,38,.12)}
+body.lm tbody tr:hover{background:#e8e4da}
+
+/* ═══ RESPONSIVE ═══════════════════════════════════════════ */
+@media(max-width:1200px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){
+  #sb{width:var(--sc)}
+  #sb .ni-lb,#sb .ni-bd,#sb .sb-logo-text,#sb .sb-logo-sub,#sb .sb-sec,#sb .sb-tog-lb{opacity:0;width:0}
+  #mw{margin-left:var(--sc)}
+}
+@media(max-width:768px){
+  .ctn{padding:12px 16px 32px}
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .hdr-clk,.hdr-ref,.tsw{display:none}
+  .mmet{grid-template-columns:repeat(2,1fr)}
+}
+
+
+/* ═══ COLLAPSIBLE SECTIONS ════════════════════════════════════════════════
+   Three toggleable sections per tracker: NSE Universe · Heat Map · Screener
+   Toggle target is the section's existing header element.
+   Body visibility toggled via .hidden; wrapper gets .collapsed for chrome tweaks.
+══════════════════════════════════════════════════════════════════════════ */
+
+/* ── clickable header base ── */
+.thb, .hmw-hd, .scr-hd {
+  cursor: pointer;
+  user-select: none;
+}
+.thb:hover     { background: var(--bg-hover) }
+.hmw-hd:hover  { background: var(--bg-hover); border-radius: var(--r) }
+.scr-hd:hover  { background: var(--bg-hover); border-radius: var(--r) }
+
+/* ── chevron indicator ── */
+.sec-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  border: 1px solid var(--border-hi);
+  color: var(--text-sec);
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform .22s cubic-bezier(.4,0,.2,1),
+              border-color .18s, color .18s, background .18s;
+  margin-left: 10px;
+}
+.sec-chevron.open {
+  transform: rotate(180deg);
+  border-color: var(--acc);
+  color: var(--acc);
+  background: var(--acc-dim);
+}
+.thb:hover .sec-chevron,
+.hmw-hd:hover .sec-chevron,
+.scr-hd:hover .sec-chevron {
+  border-color: var(--acc);
+  color: var(--acc);
+}
+
+/* ── hidden body ── */
+.tsc.sec-hidden, .hm-box.sec-hidden, .scr-box.sec-hidden {
+  display: none;
+}
+
+/* ── collapsed border fix for stock table card ── */
+.tw.sec-collapsed .thb {
+  border-bottom: none;
+  border-radius: var(--rl);
+}
+
+/* ── collapsed count chip ── */
+.sec-chip {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--text-muted);
+  margin-left: 8px;
+  opacity: 0;
+  transition: opacity .18s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.tw.sec-collapsed .thb .sec-chip,
+.hmw.sec-collapsed .hmw-hd .sec-chip,
+.scrw.sec-collapsed .scr-hd .sec-chip {
+  opacity: 1;
+}
+
+/* ── Pharma / long-name tracker layout fixes ──────────────────── */
+
+/* Sector tabs: allow wrapping but cap individual tab width */
+.sec-nav { row-gap: 6px }
+.st {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Sector performance cards: clamp name to 2 lines */
+.scard-nm {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.35;
+  min-height: 2.7em;
+}
+.scard { height: auto; min-height: 170px }
+
+/* Heatmap sector name: truncate with ellipsis */
+.hm-sc-nm {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+.hm-sc-c { min-width: 0 }
+
+/* Heatmap first column: give it enough room */
+.hm-t thead th:first-child { min-width: 240px }
+.hm-t tbody td:first-child  { min-width: 240px }
+
+/* Screener sector cell: truncate */
+.s-se {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Screener company cell: keep existing max-width truncation */
+.s-co { max-width: 180px }
+
+/* KPI strip: allow 3-col on medium, 2-col on small */
+@media (max-width: 1100px) {
+  .kpi-row { grid-template-columns: repeat(3,1fr) }
+}
+@media (max-width: 640px) {
+  .kpi-row { grid-template-columns: repeat(2,1fr) }
+}
+
+/* Sector tab: tooltip via title attribute (set by JS) */
+.st[title] { cursor: pointer }
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ══════════════════════════════════════════════════ -->
+<aside id="sb">
+  <div class="sb-logo">
+    <div class="sb-logo-mark">⬡</div>
+    <div>
+      <div class="sb-logo-text">India Stock Suite</div>
+      <div class="sb-logo-sub">NSE · BSE Tracker Hub</div>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Trackers</div>
+    <div class="ni on" data-t="ai"      data-tip="AI &amp; Data Center"   onclick="switchT('ai',this)">      <span class="ni-ic">🤖</span><span class="ni-lb">AI &amp; Data Center</span>  <span class="ni-bd" id="bd-ai">—</span></div>
+    <div class="ni"    data-t="ev"      data-tip="EV Stocks"              onclick="switchT('ev',this)">      <span class="ni-ic">⚡</span><span class="ni-lb">EV Stocks</span>          <span class="ni-bd" id="bd-ev">—</span></div>
+    <div class="ni"    data-t="en"      data-tip="Energy Stocks"          onclick="switchT('en',this)">      <span class="ni-ic">🛢</span><span class="ni-lb">Energy Stocks</span>      <span class="ni-bd" id="bd-en">—</span></div>
+    <div class="ni"    data-t="defence" data-tip="Defence &amp; Aerospace" onclick="switchT('defence',this)"><span class="ni-ic">🛡</span><span class="ni-lb">Defence &amp; Aerospace</span><span class="ni-bd" id="bd-defence">—</span></div>
+    <div class="ni"    data-t="pharma"  data-tip="Pharma &amp; Biotech"   onclick="switchT('pharma',this)"> <span class="ni-ic">💊</span><span class="ni-lb">Pharma &amp; Biotech</span><span class="ni-bd" id="bd-pharma">—</span></div>
+    <div class="sb-div"></div>
+    <div class="sb-sec">Market</div>
+    <div class="ni" style="cursor:default" data-tip="Market Status">
+      <span class="ni-ic" id="sb-mkt-ic">🟢</span>
+      <span class="ni-lb" id="sb-mkt-lb">NSE OPEN</span>
+    </div>
+  </nav>
+  <div class="sb-foot">
+    <button class="sb-tog" onclick="toggleSB()">
+      <span class="sb-tog-ic" id="sb-tog-ic">◀</span>
+      <span class="sb-tog-lb">Collapse</span>
+    </button>
+  </div>
+</aside>
+
+<!-- ═══ MAIN CONTENT ══════════════════════════════════════════════ -->
+<div id="mw">
+
+  <!-- HEADER -->
+  <div id="hdr">
+    <div class="hdr-in">
+      <div class="brand">
+        <div class="brand-t" id="brand-t">⬡ India AI &amp; Data Center Tracker</div>
+        <div class="brand-s" id="brand-s">Tracking India's AI infrastructure buildout</div>
+      </div>
+      <div class="hdr-meta">
+        <div class="tsw">
+          <button class="tbtn on" data-t="ai"      onclick="switchT('ai',null)">🤖 AI/DC</button>
+          <button class="tbtn"    data-t="ev"      onclick="switchT('ev',null)">⚡ EV</button>
+          <button class="tbtn"    data-t="en"      onclick="switchT('en',null)">🛢 Energy</button>
+          <button class="tbtn"    data-t="defence" onclick="switchT('defence',null)">🛡 Defence</button>
+          <button class="tbtn"    data-t="pharma"  onclick="switchT('pharma',null)">💊 Pharma</button>
+        </div>
+        <div class="mkt-st"><div class="mkt-dot" id="mkt-dot"></div><span id="mkt-lb">NSE</span></div>
+        <div class="hdr-clk" id="clk">--:--:-- IST</div>
+        <div class="hdr-ref">
+          <div style="margin-bottom:4px">Updated: <span id="upd">—</span></div>
+          <button id="ref-btn" class="ref-btn" onclick="manualRef()"><span id="ref-ic">↻</span> Refresh</button>
+        </div>
+        <button class="thm-tog" onclick="toggleTheme()">
+          <span id="thm-ic">🌙</span>
+          <div class="tog-trk"><div class="tog-th"></div></div>
+          <span id="thm-lb">Dark</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ctn">
+
+<!-- ── MACRO: each panel follows identical structure ─────────────
+     Ids use suffix: ai | ev | en | defence | pharma
+──────────────────────────────────────────────────────────────── -->
+
+<!-- AI & DATA CENTER -->
+<div class="tp on" id="tp-ai">
+  <div class="err" id="err-ai">⚠ Unable to load AI &amp; Data Center data.</div>
+  <div class="kpi-row">
+    <div class="kc"><div class="kc-lb">Stocks Tracked</div><div class="kv a" id="ai-t">—</div></div>
+    <div class="kc"><div class="kc-lb">Gainers Today</div><div class="kv g" id="ai-g">—</div></div>
+    <div class="kc"><div class="kc-lb">Losers Today</div><div class="kv r" id="ai-l">—</div></div>
+    <div class="kc"><div class="kc-lb">Top Gainer</div><div class="kv g" id="ai-tg" style="font-size:16px">—</div><div class="ks" id="ai-tgn">—</div></div>
+    <div class="kc"><div class="kc-lb">Top Loser</div><div class="kv r" id="ai-tl" style="font-size:16px">—</div><div class="ks" id="ai-tln">—</div></div>
+    <div class="kc"><div class="kc-lb">Avg Sector Chg</div><div class="kv" id="ai-avg">—</div></div>
+  </div>
+  <div class="sec-nav" id="sn-ai"></div>
+  <div class="tw"><div class="thb"><span>NSE Universe · AI &amp; Data Center</span><span id="ai-vc" style="color:var(--text-sec)">Loading…</span></div>
+  <div class="tsc"><table><thead><tr>
+    <th>#</th><th data-col="name" data-t="ai">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="ai">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="ai">Sector <span class="sa">↕</span></th>
+    <th data-col="price" class="num" data-t="ai">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="ai">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="ai">Chg % <span class="sa">↓</span></th>
+    <th data-col="high" class="num" data-t="ai">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="ai">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="ai">Volume <span class="sa">↕</span></th>
+    <th data-col="market_cap" class="num" data-t="ai">Mkt Cap <span class="sa">↕</span></th><th data-col="week52_high" class="num" data-t="ai">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="ai">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-ai"><tr><td colspan="14"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
+  <div class="sh">Sector Performance</div><div class="srow"><div class="sgrid" id="sg-ai"></div></div>
+  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Sector <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Sector × Timeframe</div></div>
+  <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-ai"><thead><tr>
+    <th data-hm="sector" data-t="ai" class="hs">Sector A–Z <span class="ha">↑</span></th>
+    <th data-hm="ret_1d" data-t="ai">1D <span class="ha">↕</span></th><th data-hm="ret_1w" data-t="ai">1W <span class="ha">↕</span></th><th data-hm="ret_1m" data-t="ai">1M <span class="ha">↕</span></th><th data-hm="ret_1y" data-t="ai">1Y <span class="ha">↕</span></th>
+  </tr></thead><tbody id="hmb-ai"><tr><td colspan="5"><div class="sk" style="width:100%;height:36px;border-radius:6px;margin:4px 0"></div></td></tr></tbody></table></div>
+  <div class="hm-leg"><div class="hm-leg-l"><span class="hm-leg-lb">Legend</span><div class="hm-leg-i"><span class="hm-leg-sw hd75">&lt;-75%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hd30">-30%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hn" style="border:1px solid #bbb">0</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hh5">+30%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hh75">&gt;+75%</span></div></div><div class="hm-leg-r">Click headers to sort</div></div></div></div>
+  <div class="scrw"><div class="scr-hd"><div class="scr-t">📊 Stock <span>Screener</span></div><div class="scr-cnt" id="sc-ai">Loading…</div></div>
+  <div class="scr-box"><div class="scr-sc"><table class="scr-tbl" id="scrt-ai"><thead><tr>
+    <th data-sc="ticker" data-t="ai">Ticker <span class="sar">↕</span></th><th data-sc="name" data-t="ai">Company <span class="sar">↕</span></th><th data-sc="sector" data-t="ai">Sector <span class="sar">↕</span></th>
+    <th data-sc="price" class="nh" data-t="ai">Price ₹ <span class="sar">↕</span></th><th data-sc="ret_1d" class="nh ss" data-t="ai">1 Day % <span class="sar">↓</span></th><th data-sc="ret_1w" class="nh" data-t="ai">1 Week % <span class="sar">↕</span></th><th data-sc="ret_1m" class="nh" data-t="ai">1 Month % <span class="sar">↕</span></th><th data-sc="ret_1y" class="nh" data-t="ai">1 Year % <span class="sar">↕</span></th>
+  </tr></thead><tbody id="scrb-ai"><tr><td colspan="8"><div class="sk" style="width:100%;height:14px"></div></td></tr></tbody></table></div>
+  <div class="scr-leg"><span class="scr-leg-lb">Color Scale:</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#FF2C2C"></div>&lt;−75%</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#DADBDD;border:1px solid #bbb"></div>0</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#2E6F40"></div>&gt;+75%</div></div></div></div>
+</div><!-- /tp-ai -->
+
+<!-- EV -->
+<div class="tp" id="tp-ev">
+  <div class="err" id="err-ev">⚠ Unable to load EV data.</div>
+  <div class="kpi-row">
+    <div class="kc"><div class="kc-lb">Stocks Tracked</div><div class="kv a" id="ev-t">—</div></div>
+    <div class="kc"><div class="kc-lb">Gainers Today</div><div class="kv g" id="ev-g">—</div></div>
+    <div class="kc"><div class="kc-lb">Losers Today</div><div class="kv r" id="ev-l">—</div></div>
+    <div class="kc"><div class="kc-lb">Top Gainer</div><div class="kv g" id="ev-tg" style="font-size:16px">—</div><div class="ks" id="ev-tgn">—</div></div>
+    <div class="kc"><div class="kc-lb">Top Loser</div><div class="kv r" id="ev-tl" style="font-size:16px">—</div><div class="ks" id="ev-tln">—</div></div>
+    <div class="kc"><div class="kc-lb">Avg Segment Chg</div><div class="kv" id="ev-avg">—</div></div>
+  </div>
+  <div class="sec-nav" id="sn-ev"></div>
+  <div class="tw"><div class="thb"><span>NSE Universe · EV Stocks</span><span id="ev-vc" style="color:var(--text-sec)">Loading…</span></div>
+  <div class="tsc"><table><thead><tr>
+    <th>#</th><th data-col="name" data-t="ev">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="ev">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="ev">Segment <span class="sa">↕</span></th>
+    <th data-col="price" class="num" data-t="ev">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="ev">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="ev">Chg % <span class="sa">↓</span></th>
+    <th data-col="high" class="num" data-t="ev">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="ev">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="ev">Volume <span class="sa">↕</span></th>
+    <th data-col="market_cap" class="num" data-t="ev">Mkt Cap <span class="sa">↕</span></th><th data-col="week52_high" class="num" data-t="ev">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="ev">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-ev"><tr><td colspan="14"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
+  <div class="sh">Segment Performance</div><div class="srow"><div class="sgrid" id="sg-ev"></div></div>
+  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Segment <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Segment × Timeframe</div></div>
+  <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-ev"><thead><tr>
+    <th data-hm="sector" data-t="ev" class="hs">Segment A–Z <span class="ha">↑</span></th>
+    <th data-hm="ret_1d" data-t="ev">1D <span class="ha">↕</span></th><th data-hm="ret_1w" data-t="ev">1W <span class="ha">↕</span></th><th data-hm="ret_1m" data-t="ev">1M <span class="ha">↕</span></th><th data-hm="ret_1y" data-t="ev">1Y <span class="ha">↕</span></th>
+  </tr></thead><tbody id="hmb-ev"><tr><td colspan="5"><div class="sk" style="width:100%;height:36px;border-radius:6px;margin:4px 0"></div></td></tr></tbody></table></div>
+  <div class="hm-leg"><div class="hm-leg-l"><span class="hm-leg-lb">Legend</span><div class="hm-leg-i"><span class="hm-leg-sw hd75">&lt;-75%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hn" style="border:1px solid #bbb">0</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hh75">&gt;+75%</span></div></div><div class="hm-leg-r">Click headers to sort</div></div></div></div>
+  <div class="scrw"><div class="scr-hd"><div class="scr-t">📊 EV <span>Screener</span></div><div class="scr-cnt" id="sc-ev">Loading…</div></div>
+  <div class="scr-box"><div class="scr-sc"><table class="scr-tbl" id="scrt-ev"><thead><tr>
+    <th data-sc="ticker" data-t="ev">Ticker <span class="sar">↕</span></th><th data-sc="name" data-t="ev">Company <span class="sar">↕</span></th><th data-sc="sector" data-t="ev">Segment <span class="sar">↕</span></th>
+    <th data-sc="price" class="nh" data-t="ev">Price ₹ <span class="sar">↕</span></th><th data-sc="ret_1d" class="nh ss" data-t="ev">1 Day % <span class="sar">↓</span></th><th data-sc="ret_1w" class="nh" data-t="ev">1 Week % <span class="sar">↕</span></th><th data-sc="ret_1m" class="nh" data-t="ev">1 Month % <span class="sar">↕</span></th><th data-sc="ret_1y" class="nh" data-t="ev">1 Year % <span class="sar">↕</span></th>
+  </tr></thead><tbody id="scrb-ev"><tr><td colspan="8"><div class="sk" style="width:100%;height:14px"></div></td></tr></tbody></table></div>
+  <div class="scr-leg"><span class="scr-leg-lb">Scale:</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#FF2C2C"></div>&lt;−75%</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#DADBDD;border:1px solid #bbb"></div>0</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#2E6F40"></div>&gt;+75%</div></div></div></div>
+</div><!-- /tp-ev -->
+
+<!-- ENERGY -->
+<div class="tp" id="tp-en">
+  <div class="err" id="err-en">⚠ Unable to load Energy data.</div>
+  <div class="kpi-row">
+    <div class="kc"><div class="kc-lb">Stocks Tracked</div><div class="kv a" id="en-t">—</div></div>
+    <div class="kc"><div class="kc-lb">Gainers Today</div><div class="kv g" id="en-g">—</div></div>
+    <div class="kc"><div class="kc-lb">Losers Today</div><div class="kv r" id="en-l">—</div></div>
+    <div class="kc"><div class="kc-lb">Top Gainer</div><div class="kv g" id="en-tg" style="font-size:16px">—</div><div class="ks" id="en-tgn">—</div></div>
+    <div class="kc"><div class="kc-lb">Top Loser</div><div class="kv r" id="en-tl" style="font-size:16px">—</div><div class="ks" id="en-tln">—</div></div>
+    <div class="kc"><div class="kc-lb">Avg Sector Chg</div><div class="kv" id="en-avg">—</div></div>
+  </div>
+  <div class="sec-nav" id="sn-en"></div>
+  <div class="tw"><div class="thb"><span>NSE Universe · Energy Stocks</span><span id="en-vc" style="color:var(--text-sec)">Loading…</span></div>
+  <div class="tsc"><table><thead><tr>
+    <th>#</th><th data-col="name" data-t="en">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="en">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="en">Sector <span class="sa">↕</span></th>
+    <th data-col="price" class="num" data-t="en">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="en">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="en">Chg % <span class="sa">↓</span></th>
+    <th data-col="high" class="num" data-t="en">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="en">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="en">Volume <span class="sa">↕</span></th>
+    <th data-col="market_cap" class="num" data-t="en">Mkt Cap <span class="sa">↕</span></th><th data-col="week52_high" class="num" data-t="en">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="en">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-en"><tr><td colspan="14"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
+  <div class="sh">Sector Performance</div><div class="srow"><div class="sgrid" id="sg-en"></div></div>
+  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Sector <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Sector × Timeframe</div></div>
+  <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-en"><thead><tr>
+    <th data-hm="sector" data-t="en" class="hs">Sector A–Z <span class="ha">↑</span></th>
+    <th data-hm="ret_1d" data-t="en">1D <span class="ha">↕</span></th><th data-hm="ret_1w" data-t="en">1W <span class="ha">↕</span></th><th data-hm="ret_1m" data-t="en">1M <span class="ha">↕</span></th><th data-hm="ret_1y" data-t="en">1Y <span class="ha">↕</span></th>
+  </tr></thead><tbody id="hmb-en"><tr><td colspan="5"><div class="sk" style="width:100%;height:36px;border-radius:6px;margin:4px 0"></div></td></tr></tbody></table></div>
+  <div class="hm-leg"><div class="hm-leg-l"><span class="hm-leg-lb">Legend</span><div class="hm-leg-i"><span class="hm-leg-sw hd75">&lt;-75%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hn" style="border:1px solid #bbb">0</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hh75">&gt;+75%</span></div></div><div class="hm-leg-r">Click headers to sort</div></div></div></div>
+  <div class="scrw"><div class="scr-hd"><div class="scr-t">📊 Energy <span>Screener</span></div><div class="scr-cnt" id="sc-en">Loading…</div></div>
+  <div class="scr-box"><div class="scr-sc"><table class="scr-tbl" id="scrt-en"><thead><tr>
+    <th data-sc="ticker" data-t="en">Ticker <span class="sar">↕</span></th><th data-sc="name" data-t="en">Company <span class="sar">↕</span></th><th data-sc="sector" data-t="en">Sector <span class="sar">↕</span></th>
+    <th data-sc="price" class="nh" data-t="en">Price ₹ <span class="sar">↕</span></th><th data-sc="ret_1d" class="nh ss" data-t="en">1 Day % <span class="sar">↓</span></th><th data-sc="ret_1w" class="nh" data-t="en">1 Week % <span class="sar">↕</span></th><th data-sc="ret_1m" class="nh" data-t="en">1 Month % <span class="sar">↕</span></th><th data-sc="ret_1y" class="nh" data-t="en">1 Year % <span class="sar">↕</span></th>
+  </tr></thead><tbody id="scrb-en"><tr><td colspan="8"><div class="sk" style="width:100%;height:14px"></div></td></tr></tbody></table></div>
+  <div class="scr-leg"><span class="scr-leg-lb">Scale:</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#FF2C2C"></div>&lt;−75%</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#DADBDD;border:1px solid #bbb"></div>0</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#2E6F40"></div>&gt;+75%</div></div></div></div>
+</div><!-- /tp-en -->
+
+<!-- DEFENCE -->
+<div class="tp" id="tp-defence">
+  <div class="err" id="err-defence">⚠ Unable to load Defence data.</div>
+  <div class="kpi-row">
+    <div class="kc"><div class="kc-lb">Stocks Tracked</div><div class="kv a" id="defence-t">—</div></div>
+    <div class="kc"><div class="kc-lb">Gainers Today</div><div class="kv g" id="defence-g">—</div></div>
+    <div class="kc"><div class="kc-lb">Losers Today</div><div class="kv r" id="defence-l">—</div></div>
+    <div class="kc"><div class="kc-lb">Top Gainer</div><div class="kv g" id="defence-tg" style="font-size:16px">—</div><div class="ks" id="defence-tgn">—</div></div>
+    <div class="kc"><div class="kc-lb">Top Loser</div><div class="kv r" id="defence-tl" style="font-size:16px">—</div><div class="ks" id="defence-tln">—</div></div>
+    <div class="kc"><div class="kc-lb">Avg Sub-Sector Chg</div><div class="kv" id="defence-avg">—</div></div>
+  </div>
+  <div class="sec-nav" id="sn-defence"></div>
+  <div class="tw"><div class="thb"><span>NSE · BSE Universe · Defence &amp; Aerospace</span><span id="defence-vc" style="color:var(--text-sec)">Loading…</span></div>
+  <div class="tsc"><table><thead><tr>
+    <th>#</th><th data-col="name" data-t="defence">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="defence">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="defence">Sub-Sector <span class="sa">↕</span></th>
+    <th data-col="price" class="num" data-t="defence">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="defence">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="defence">Chg % <span class="sa">↓</span></th>
+    <th data-col="high" class="num" data-t="defence">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="defence">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="defence">Volume <span class="sa">↕</span></th>
+    <th data-col="market_cap" class="num" data-t="defence">Mkt Cap <span class="sa">↕</span></th><th data-col="week52_high" class="num" data-t="defence">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="defence">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-defence"><tr><td colspan="14"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
+  <div class="sh">Sub-Sector Performance</div><div class="srow"><div class="sgrid" id="sg-defence"></div></div>
+  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Sub-Sector <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Sub-Sector × Timeframe</div></div>
+  <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-defence"><thead><tr>
+    <th data-hm="sector" data-t="defence" class="hs">Sub-Sector A–Z <span class="ha">↑</span></th>
+    <th data-hm="ret_1d" data-t="defence">1D <span class="ha">↕</span></th><th data-hm="ret_1w" data-t="defence">1W <span class="ha">↕</span></th><th data-hm="ret_1m" data-t="defence">1M <span class="ha">↕</span></th><th data-hm="ret_1y" data-t="defence">1Y <span class="ha">↕</span></th>
+  </tr></thead><tbody id="hmb-defence"><tr><td colspan="5"><div class="sk" style="width:100%;height:36px;border-radius:6px;margin:4px 0"></div></td></tr></tbody></table></div>
+  <div class="hm-leg"><div class="hm-leg-l"><span class="hm-leg-lb">Legend</span><div class="hm-leg-i"><span class="hm-leg-sw hd75">&lt;-75%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hn" style="border:1px solid #bbb">0</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hh75">&gt;+75%</span></div></div><div class="hm-leg-r">Click headers to sort</div></div></div></div>
+  <div class="scrw"><div class="scr-hd"><div class="scr-t">📊 Defence <span>Screener</span></div><div class="scr-cnt" id="sc-defence">Loading…</div></div>
+  <div class="scr-box"><div class="scr-sc"><table class="scr-tbl" id="scrt-defence"><thead><tr>
+    <th data-sc="ticker" data-t="defence">Ticker <span class="sar">↕</span></th><th data-sc="name" data-t="defence">Company <span class="sar">↕</span></th><th data-sc="sector" data-t="defence">Sub-Sector <span class="sar">↕</span></th>
+    <th data-sc="price" class="nh" data-t="defence">Price ₹ <span class="sar">↕</span></th><th data-sc="ret_1d" class="nh ss" data-t="defence">1 Day % <span class="sar">↓</span></th><th data-sc="ret_1w" class="nh" data-t="defence">1 Week % <span class="sar">↕</span></th><th data-sc="ret_1m" class="nh" data-t="defence">1 Month % <span class="sar">↕</span></th><th data-sc="ret_1y" class="nh" data-t="defence">1 Year % <span class="sar">↕</span></th>
+  </tr></thead><tbody id="scrb-defence"><tr><td colspan="8"><div class="sk" style="width:100%;height:14px"></div></td></tr></tbody></table></div>
+  <div class="scr-leg"><span class="scr-leg-lb">Scale:</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#FF2C2C"></div>&lt;−75%</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#DADBDD;border:1px solid #bbb"></div>0</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#2E6F40"></div>&gt;+75%</div></div></div></div>
+</div><!-- /tp-defence -->
+
+<!-- PHARMA -->
+<div class="tp" id="tp-pharma">
+  <div class="err" id="err-pharma">⚠ Unable to load Pharma data.</div>
+  <div class="kpi-row">
+    <div class="kc"><div class="kc-lb">Stocks Tracked</div><div class="kv a" id="pharma-t">—</div></div>
+    <div class="kc"><div class="kc-lb">Gainers Today</div><div class="kv g" id="pharma-g">—</div></div>
+    <div class="kc"><div class="kc-lb">Losers Today</div><div class="kv r" id="pharma-l">—</div></div>
+    <div class="kc"><div class="kc-lb">Top Gainer</div><div class="kv g" id="pharma-tg" style="font-size:16px">—</div><div class="ks" id="pharma-tgn">—</div></div>
+    <div class="kc"><div class="kc-lb">Top Loser</div><div class="kv r" id="pharma-tl" style="font-size:16px">—</div><div class="ks" id="pharma-tln">—</div></div>
+    <div class="kc"><div class="kc-lb">Avg Segment Chg</div><div class="kv" id="pharma-avg">—</div></div>
+  </div>
+  <div class="sec-nav" id="sn-pharma"></div>
+  <div class="tw"><div class="thb"><span>NSE Universe · Pharma &amp; Biotech</span><span id="pharma-vc" style="color:var(--text-sec)">Loading…</span></div>
+  <div class="tsc"><table><thead><tr>
+    <th>#</th><th data-col="name" data-t="pharma">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="pharma">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="pharma">Segment <span class="sa">↕</span></th>
+    <th data-col="price" class="num" data-t="pharma">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="pharma">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="pharma">Chg % <span class="sa">↓</span></th>
+    <th data-col="high" class="num" data-t="pharma">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="pharma">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="pharma">Volume <span class="sa">↕</span></th>
+    <th data-col="market_cap" class="num" data-t="pharma">Mkt Cap <span class="sa">↕</span></th><th data-col="week52_high" class="num" data-t="pharma">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="pharma">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-pharma"><tr><td colspan="14"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:90%"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:95%"></div></td></tr></tbody></table></div></div>
+  <div class="sh">Segment Performance</div><div class="srow"><div class="sgrid" id="sg-pharma"></div></div>
+  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Segment <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Segment × Timeframe</div></div>
+  <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-pharma"><thead><tr>
+    <th data-hm="sector" data-t="pharma" class="hs">Segment A–Z <span class="ha">↑</span></th>
+    <th data-hm="ret_1d" data-t="pharma">1D <span class="ha">↕</span></th><th data-hm="ret_1w" data-t="pharma">1W <span class="ha">↕</span></th><th data-hm="ret_1m" data-t="pharma">1M <span class="ha">↕</span></th><th data-hm="ret_1y" data-t="pharma">1Y <span class="ha">↕</span></th>
+  </tr></thead><tbody id="hmb-pharma"><tr><td colspan="5"><div class="sk" style="width:100%;height:36px;border-radius:6px;margin:4px 0"></div></td></tr></tbody></table></div>
+  <div class="hm-leg"><div class="hm-leg-l"><span class="hm-leg-lb">Legend</span><div class="hm-leg-i"><span class="hm-leg-sw hd75">&lt;-75%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hd30">-30%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hn" style="border:1px solid #bbb">0</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hh5">+30%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hh75">&gt;+75%</span></div></div><div class="hm-leg-r">Click headers to sort</div></div></div></div>
+  <div class="scrw"><div class="scr-hd"><div class="scr-t">📊 Pharma <span>Screener</span></div><div class="scr-cnt" id="sc-pharma">Loading…</div></div>
+  <div class="scr-box"><div class="scr-sc"><table class="scr-tbl" id="scrt-pharma"><thead><tr>
+    <th data-sc="ticker" data-t="pharma">Ticker <span class="sar">↕</span></th><th data-sc="name" data-t="pharma">Company <span class="sar">↕</span></th><th data-sc="sector" data-t="pharma">Segment <span class="sar">↕</span></th>
+    <th data-sc="price" class="nh" data-t="pharma">Price ₹ <span class="sar">↕</span></th><th data-sc="ret_1d" class="nh ss" data-t="pharma">1 Day % <span class="sar">↓</span></th><th data-sc="ret_1w" class="nh" data-t="pharma">1 Week % <span class="sar">↕</span></th><th data-sc="ret_1m" class="nh" data-t="pharma">1 Month % <span class="sar">↕</span></th><th data-sc="ret_1y" class="nh" data-t="pharma">1 Year % <span class="sar">↕</span></th>
+  </tr></thead><tbody id="scrb-pharma"><tr><td colspan="8"><div class="sk" style="width:100%;height:14px"></div></td></tr></tbody></table></div>
+  <div class="scr-leg"><span class="scr-leg-lb">Color Scale:</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#FF2C2C"></div>&lt;−75%</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#FF4141"></div>−30%</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#DADBDD;border:1px solid #bbb"></div>0</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#6CC284"></div>+30%</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#2E6F40"></div>&gt;+75%</div></div></div></div>
+</div><!-- /tp-pharma -->
+
+  </div><!-- /ctn -->
+
+  <footer>
+    <div>Data sourced via Yahoo Finance · NSE/BSE prices delayed ~15 min</div>
+    <div>Last full refresh: <span id="fref">—</span></div>
+    <div style="margin-top:4px;color:var(--text-muted);font-size:10px">For informational purposes only. Not investment advice.</div>
+  </footer>
+</div><!-- /mw -->
+
+<!-- ═══ MODAL ══════════════════════════════════════════════════ -->
+<div id="mo">
+  <div class="mb">
+    <div class="mhd">
+      <div class="mta"><div class="mc" id="m-co">—</div><div class="mtk" id="m-tk">—</div></div>
+      <div class="mpa"><div class="mpr" id="m-pr">—</div><div class="mch" id="m-ch">—</div></div>
+      <button class="mcl" id="m-cl">✕</button>
+    </div>
+    <div class="mbd">
+      <div class="ctabs" id="ctabs">
+        <button class="ctab on" data-period="1mo">1M</button>
+        <button class="ctab" data-period="1d">1D</button>
+        <button class="ctab" data-period="5d">5D</button>
+        <button class="ctab" data-period="3mo">3M</button>
+        <button class="ctab" data-period="1y">1Y</button>
+      </div>
+      <div class="cht-c"><canvas id="m-chart"></canvas><div id="mld">Loading chart…</div></div>
+      <div class="mmet" id="m-met"></div>
+    </div>
+    <div class="mft">
+      <a class="nse-a" id="m-nse" href="#" target="_blank" rel="noopener">↗ View on NSE</a>
+      <span style="font-size:11px;color:var(--text-muted)">Click outside to close</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ JAVASCRIPT ════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+const API = (location.hostname==='localhost'||location.hostname==='127.0.0.1')
+  ? 'http://localhost:5000' : '';
+
+/* ── TRACKER CONFIG ─────────────────────────────────────────── */
+const CFG = {
+  ai: {
+    title:'⬡ India AI & Data Center Tracker',
+    tagline:"Tracking India's AI infrastructure buildout",
+    acc:'#00d4ff', dim:'rgba(0,212,255,.14)', bd:'rgba(0,212,255,.30)',
+    sectors:['All','Data Center Operators','Power & Electrical','Cooling',
+             'Fiber / Networking','Compute & Hardware','Managed Services','Building / Construction'],
+    icons:{'Data Center Operators':'🖥','Power & Electrical':'⚡','Cooling':'❄',
+           'Fiber / Networking':'🔗','Compute & Hardware':'🔲','Managed Services':'⚙','Building / Construction':'🏗'}
+  },
+  ev: {
+    title:'India EV Stock Tracker',
+    tagline:"Tracking India's electric vehicle revolution",
+    acc:'#00e87a', dim:'rgba(0,232,122,.14)', bd:'rgba(0,232,122,.30)',
+    sectors:['All','EV OEMs & 3W/Bus Manufacturers','EV Components & Technology','EV Charging & Energy Infrastructure'],
+    icons:{'EV OEMs & 3W/Bus Manufacturers':'🚗','EV Components & Technology':'🔋','EV Charging & Energy Infrastructure':'⚡'}
+  },
+  en: {
+    title:'⚡ India Energy Stock Tracker',
+    tagline:"Tracking India's energy transition & power sector",
+    acc:'#ffb347', dim:'rgba(255,179,71,.14)', bd:'rgba(255,179,71,.30)',
+    sectors:['All','Oil Gas & Consumable Fuels','Power','Power & Electrical Equipment','Renewable & Green Energy'],
+    icons:{'Oil Gas & Consumable Fuels':'🛢','Power':'⚡','Power & Electrical Equipment':'🔌','Renewable & Green Energy':'🌱'}
+  },
+  defence: {
+    title:'🛡 India Defence Stock Tracker',
+    tagline:"Tracking India's defence & aerospace buildout · NSE/BSE",
+    acc:'#c084fc', dim:'rgba(192,132,252,.14)', bd:'rgba(192,132,252,.30)',
+    sectors:['All','Aerospace & Aircraft Manufacturing','Shipbuilding & Naval Systems',
+             'Missiles, Weapons & Ammunition','Defence Electronics, Radars & Components'],
+    icons:{'Aerospace & Aircraft Manufacturing':'✈️','Shipbuilding & Naval Systems':'⚓',
+           'Missiles, Weapons & Ammunition':'🚀','Defence Electronics, Radars & Components':'📡'}
+  },
+  pharma: {
+    title:'⬡ India Pharma Stock Tracker',
+    tagline:"Tracking India's pharmaceutical sector · NSE",
+    acc:'#f472b6', dim:'rgba(244,114,182,.14)', bd:'rgba(244,114,182,.30)',
+    sectors:['All','Large-cap branded pharma','Specialty and export-focused pharma',
+             'Formulation and domestic-focused pharma','Biotechnology and biosimilars',
+             'API and bulk drug companies','Smaller pharma allied companies'],
+    icons:{'Large-cap branded pharma':'💊','Specialty and export-focused pharma':'🌐',
+           'Formulation and domestic-focused pharma':'🏭','Biotechnology and biosimilars':'🧬',
+           'API and bulk drug companies':'⚗️','Smaller pharma allied companies':'🔬'}
+  }
+};
+
+/* ── STATE ──────────────────────────────────────────────────── */
+const S = {};
+Object.keys(CFG).forEach(t => {
+  S[t] = { quotes:[], spark:{}, sec:'All',
+    sortCol:'change_pct', sortDir:'desc',
+    hm:[], hmCol:'sector', hmDir:'asc',
+    scr:[], scrCol:'ret_1d', scrDir:'desc',
+    loaded:false, loading:false };
+});
+let curT='ai', mChart=null, mTicker=null, mPeriod='1mo';
+
+/* ── FORMATTERS ─────────────────────────────────────────────── */
+const f2  = (v,d=2) => v==null?'—':Number(v).toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fC  = v => v==null?'—':'₹'+Number(v).toLocaleString('en-IN',{maximumFractionDigits:2});
+const fV  = v => { if(v==null)return'—'; if(v>=1e7)return(v/1e7).toFixed(1)+' Cr'; if(v>=1e5)return(v/1e5).toFixed(1)+' L'; if(v>=1e3)return(v/1e3).toFixed(0)+'K'; return String(v); };
+const fM  = v => { if(v==null)return'—'; if(v>=1e12)return'₹'+(v/1e12).toFixed(2)+'T'; if(v>=1e9)return'₹'+(v/1e9).toFixed(1)+'B'; if(v>=1e6)return'₹'+(v/1e6).toFixed(0)+'M'; return'₹'+v; };
+const fP  = v => v==null?'—':(v>=0?'+':'')+Number(v).toFixed(2)+'%';
+const rCl = p => p==null?'': p>2?'rgs':p>0?'rg':p<-2?'rls':p<0?'rl':'';
+const cCl = v => v==null?'': v>0?'g':v<0?'r':'';
+
+/* ── SPARKLINE SVG ──────────────────────────────────────────── */
+function sparkSVG(prices,w=80,h=28){
+  if(!prices||prices.length<2)return'<span style="color:var(--text-muted);font-size:10px">—</span>';
+  const mn=Math.min(...prices),mx=Math.max(...prices),rng=mx-mn||1;
+  const pts=prices.map((p,i)=>`${((i/(prices.length-1))*w).toFixed(1)},${(h-((p-mn)/rng)*(h-2)-1).toFixed(1)}`).join(' ');
+  const up=prices[prices.length-1]>=prices[0],c=up?'#00e87a':'#ff3d5a',id='s'+Math.random().toString(36).slice(2,6);
+  return`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${c}" stop-opacity=".3"/><stop offset="100%" stop-color="${c}" stop-opacity="0"/></linearGradient></defs><polygon points="${pts} ${w},${h} 0,${h}" fill="url(#${id})"/><polyline points="${pts}" fill="none" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+}
+
+/* ── CLOCK & MARKET STATUS ──────────────────────────────────── */
+function marketOpen(){
+  const d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));
+  const m=d.getHours()*60+d.getMinutes();
+  return d.getDay()>=1&&d.getDay()<=5&&m>=555&&m<=930;
+}
+function tick(){
+  const d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));
+  const p=n=>String(n).padStart(2,'0');
+  document.getElementById('clk').textContent=`${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())} IST`;
+  const o=marketOpen();
+  document.getElementById('mkt-lb').textContent   =o?'NSE OPEN':'NSE CLOSED';
+  document.getElementById('mkt-dot').className    ='mkt-dot'+(o?'':' off');
+  document.getElementById('sb-mkt-ic').textContent=o?'🟢':'🔴';
+  document.getElementById('sb-mkt-lb').textContent=o?'NSE OPEN':'NSE CLOSED';
+}
+setInterval(tick,1000); tick();
+
+/* ── ACCENT ─────────────────────────────────────────────────── */
+function setAccent(t){
+  const c=CFG[t],r=document.documentElement.style;
+  r.setProperty('--acc',c.acc); r.setProperty('--acc-dim',c.dim); r.setProperty('--acc-bd',c.bd);
+}
+
+/* ── SWITCH TRACKER ─────────────────────────────────────────── */
+function switchT(t,sbEl){
+  curT=t; const c=CFG[t];
+  document.querySelectorAll('.tp').forEach(p=>p.classList.remove('on'));
+  document.getElementById('tp-'+t).classList.add('on');
+  document.getElementById('brand-t').textContent=c.title;
+  document.getElementById('brand-s').textContent=c.tagline;
+  setAccent(t);
+  document.querySelectorAll('.ni[data-t]').forEach(el=>el.classList.remove('on'));
+  (sbEl||document.querySelector(`.ni[data-t="${t}"]`))?.classList.add('on');
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  if(S[t].loaded){
+    // Already prefetched in background — just render (data is fresh in S[t])
+    renderKPI(t); buildTabs(t); renderTable(t); renderCards(t);
+    // Slow data may still be arriving — re-render if already present
+    if(S[t].hm.length)  renderHM(t);
+    if(S[t].scr.length) renderScr(t);
+  } else if(S[t].loading){
+    // Background fetch is in progress — foreground switchT steals priority:
+    // quotes/spark are already being fetched; just wait for them then render.
+    // We do nothing here — bgLoadOne() checks curT and renders when done.
+  } else {
+    loadT(t);
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── SECTOR TABS ─────────────────────────────────────────────── */
+function buildTabs(t){
+  const s=S[t],c=CFG[t],nav=document.getElementById('sn-'+t);
+  nav.innerHTML='';
+  c.sectors.forEach(sec=>{
+    const btn=document.createElement('button');
+    btn.className='st'+(sec===s.sec?' on':'');
+    const cnt=sec==='All'?s.quotes.length:s.quotes.filter(q=>q.sector===sec).length;
+    const shortSec = sec.length > 30 ? sec.slice(0,29)+'…' : sec;
+    btn.innerHTML=`${shortSec} <span class="cnt">${cnt}</span>`;
+    if(sec !== shortSec) btn.title = sec;
+    btn.onclick=()=>{ s.sec=sec; nav.querySelectorAll('.st').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); renderTable(t); };
+    nav.appendChild(btn);
+  });
+}
+
+/* ── KPI ─────────────────────────────────────────────────────── */
+function renderKPI(t){
+  const q=S[t].quotes.filter(x=>x.change_pct!=null);
+  document.getElementById(t+'-t').textContent=S[t].quotes.length;
+  document.getElementById(t+'-g').textContent=q.filter(x=>x.change_pct>0).length;
+  document.getElementById(t+'-l').textContent=q.filter(x=>x.change_pct<0).length;
+  document.getElementById('bd-'+t).textContent=S[t].quotes.length;
+  if(q.length){
+    const srt=[...q].sort((a,b)=>(b.change_pct||0)-(a.change_pct||0));
+    const top=srt[0],bot=srt[srt.length-1];
+    document.getElementById(t+'-tg').textContent  =fP(top.change_pct);
+    document.getElementById(t+'-tgn').textContent =top.name;
+    document.getElementById(t+'-tl').textContent  =fP(bot.change_pct);
+    document.getElementById(t+'-tln').textContent =bot.name;
+  }
+  const avg=q.length?q.reduce((a,x)=>a+x.change_pct,0)/q.length:null;
+  const el=document.getElementById(t+'-avg');
+  el.textContent=avg!=null?fP(avg):'—';
+  el.className='kv'+(avg>0?' g':avg<0?' r':'');
+}
+
+/* ── TABLE ───────────────────────────────────────────────────── */
+function getSorted(t){
+  const s=S[t];
+  let q=s.sec==='All'?[...s.quotes]:s.quotes.filter(x=>x.sector===s.sec);
+  return q.sort((a,b)=>{
+    const av=a[s.sortCol],bv=b[s.sortCol];
+    if(av==null&&bv==null)return 0; if(av==null)return 1; if(bv==null)return-1;
+    const cm=typeof av==='string'?av.localeCompare(bv):av-bv;
+    return s.sortDir==='asc'?cm:-cm;
+  });
+}
+function renderTable(t){
+  const q=getSorted(t);
+  document.getElementById(t+'-vc').textContent=q.length+' stocks';
+  document.getElementById('tb-'+t).innerHTML=q.map((x,i)=>{
+    const sp=sparkSVG(S[t].spark[x.ticker]||[]);
+    return`<tr class="${rCl(x.change_pct)}" style="animation-delay:${Math.min(i*18,450)}ms" onclick="openM('${x.ticker}','${t}')">
+      <td class="mu" style="font-size:10px">${i+1}</td>
+      <td><div class="cn">${x.name}</div></td>
+      <td><span class="tb">${x.ticker.replace('.NS','').replace('.BO','')}</span></td>
+      <td><span class="sp">${(x.sector.length>22?x.sector.slice(0,21)+'…':x.sector)}</span></td>
+      <td class="num pr">${fC(x.price)}</td>
+      <td class="num ${cCl(x.change)}">${x.change!=null?(x.change>=0?'+':'')+f2(x.change):'—'}</td>
+      <td class="num ${cCl(x.change_pct)}">${fP(x.change_pct)}</td>
+      <td class="num mu">${fC(x.high)}</td>
+      <td class="num mu">${fC(x.low)}</td>
+      <td class="num mu">${fV(x.volume)}</td>
+      <td class="num mu">${fM(x.market_cap)}</td>
+      <td class="num mu">${fC(x.week52_high)}</td>
+      <td class="num mu">${fC(x.week52_low)}</td>
+      <td>${sp}</td>
+    </tr>`;
+  }).join('');
+}
+document.addEventListener('click',e=>{
+  const th=e.target.closest('thead th[data-col]'); if(!th)return;
+  const t=th.dataset.t,col=th.dataset.col,s=S[t];
+  s.sortDir=s.sortCol===col?(s.sortDir==='asc'?'desc':'asc'):((col==='name'||col==='ticker'||col==='sector')?'asc':'desc');
+  s.sortCol=col;
+  th.closest('table').querySelectorAll('thead th').forEach(h=>{h.classList.remove('srt');const a=h.querySelector('.sa');if(a)a.textContent='↕';});
+  th.classList.add('srt'); const a=th.querySelector('.sa');if(a)a.textContent=s.sortDir==='asc'?'↑':'↓';
+  renderTable(t);
+});
+
+/* ── SECTOR CARDS ────────────────────────────────────────────── */
+function renderCards(t){
+  const s=S[t],c=CFG[t];
+  document.getElementById('sg-'+t).innerHTML=c.sectors.filter(x=>x!=='All').map(sec=>{
+    const stk=s.quotes.filter(q=>q.sector===sec&&q.change_pct!=null);
+    const avg=stk.length?stk.reduce((a,x)=>a+x.change_pct,0)/stk.length:null;
+    const top=stk.length?stk.reduce((a,b)=>(b.change_pct||0)>(a.change_pct||0)?b:a,stk[0]):null;
+    const bot=stk.length?stk.reduce((a,b)=>(b.change_pct||0)<(a.change_pct||0)?b:a,stk[0]):null;
+    const pos=avg!=null&&avg>=0,bar=avg!=null?Math.min(Math.abs(avg)*12,100):0;
+    const ft=x=>x?x.ticker.replace('.NS','').replace('.BO',''):'—';
+    const secTitle = sec.length > 26 ? sec : '';
+    return`<div class="scard">
+      <div class="scard-hd"><div class="scard-nm" title="${secTitle}">${sec}</div><div class="scard-ic">${c.icons[sec]||'◈'}</div></div>
+      <div class="scard-ch ${pos?'g':avg<0?'r':''}">${avg!=null?fP(avg):'—'}</div>
+      <div class="sbar-tr"><div class="sbar-fl" style="width:${bar}%;background:${pos?'var(--green)':'var(--red)'}"></div></div>
+      <div class="srow2"><span class="slb">Top</span><span class="stk">${ft(top)}</span><span class="spct g">${top?fP(top.change_pct):'—'}</span></div>
+      <div class="srow2"><span class="slb">Low</span><span class="stk">${ft(bot)}</span><span class="spct r">${bot?fP(bot.change_pct):'—'}</span></div>
+    </div>`;
+  }).join('');
+}
+
+/* ── HEATMAP ─────────────────────────────────────────────────── */
+const hCl=v=>{if(v==null)return'hna';if(v<-75)return'hd75';if(v<-30)return'hd30';if(v<-5)return'hd5';if(v<=5)return'hn';if(v<=30)return'hh5';if(v<=75)return'hh30';return'hh75';};
+const hF=v=>v==null?'—':(v>=0?'+':'')+v.toFixed(1)+'%';
+function renderHM(t){
+  const s=S[t],c=CFG[t];
+  const rows=[...s.hm].sort((a,b)=>{
+    const col=s.hmCol,av=a[col],bv=b[col];
+    if(av==null&&bv==null)return 0;if(av==null)return 1;if(bv==null)return-1;
+    const cm=typeof av==='string'?av.localeCompare(bv):av-bv;
+    return s.hmDir==='asc'?cm:-cm;
+  });
+  document.getElementById('hmb-'+t).innerHTML=rows.map(x=>`<tr>
+    <td class="hm-sc-c"><div class="hm-sc-ic">${c.icons[x.sector]||'📊'}</div><span class="hm-sc-nm" title="${x.sector.length>28?x.sector:''}">${x.sector}</span><span class="hm-cnt">${x.count}</span></td>
+    <td class="hmv"><div class="hm-cell ${hCl(x.ret_1d)}">${hF(x.ret_1d)}</div></td>
+    <td class="hmv"><div class="hm-cell ${hCl(x.ret_1w)}">${hF(x.ret_1w)}</div></td>
+    <td class="hmv"><div class="hm-cell ${hCl(x.ret_1m)}">${hF(x.ret_1m)}</div></td>
+    <td class="hmv"><div class="hm-cell ${hCl(x.ret_1y)}">${hF(x.ret_1y)}</div></td>
+  </tr>`).join('');
+}
+document.addEventListener('click',e=>{
+  const th=e.target.closest('.hm-t thead th[data-hm]');if(!th)return;
+  const t=th.dataset.t,col=th.dataset.hm,s=S[t];
+  s.hmDir=s.hmCol===col?(s.hmDir==='asc'?'desc':'asc'):(col==='sector'?'asc':'desc'); s.hmCol=col;
+  th.closest('table').querySelectorAll('thead th').forEach(h=>{h.classList.remove('hs');const a=h.querySelector('.ha');if(a)a.textContent='↕';});
+  th.classList.add('hs');const a=th.querySelector('.ha');if(a)a.textContent=s.hmDir==='asc'?'↑':'↓';
+  renderHM(t);
+});
+
+/* ── SCREENER ────────────────────────────────────────────────── */
+const sCl=v=>{if(v==null)return'sna';if(v<-75)return'sd75';if(v<-30)return'sd30';if(v<-5)return'sd5';if(v<=5)return'sn';if(v<=30)return'sh5';if(v<=75)return'sh30';return'sh75';};
+const sF=v=>v==null?'—':(v>=0?'+':'')+v.toFixed(1)+'%';
+function renderScr(t){
+  const s=S[t];
+  const rows=[...s.scr].sort((a,b)=>{
+    const col=s.scrCol,av=a[col],bv=b[col];
+    if(av==null&&bv==null)return 0;if(av==null)return 1;if(bv==null)return-1;
+    const cm=typeof av==='string'?av.localeCompare(bv):av-bv;
+    return s.scrDir==='asc'?cm:-cm;
+  });
+  document.getElementById('sc-'+t).textContent=rows.length+' stocks';
+  document.getElementById('scrb-'+t).innerHTML=rows.map(x=>`<tr onclick="openM('${x.ticker}','${t}')">
+    <td><span class="s-tk">${x.ticker.replace('.NS','').replace('.BO','')}</span></td>
+    <td><div class="s-co" title="${x.name}">${x.name}</div></td>
+    <td><div class="s-se" title="${x.sector.length>22?x.sector:''}">${x.sector.length>22?x.sector.slice(0,21)+'…':x.sector}</div></td>
+    <td class="s-pr">${x.price!=null?'₹'+Number(x.price).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}):'—'}</td>
+    <td class="s-rt ${sCl(x.ret_1d)}">${sF(x.ret_1d)}</td>
+    <td class="s-rt ${sCl(x.ret_1w)}">${sF(x.ret_1w)}</td>
+    <td class="s-rt ${sCl(x.ret_1m)}">${sF(x.ret_1m)}</td>
+    <td class="s-rt ${sCl(x.ret_1y)}">${sF(x.ret_1y)}</td>
+  </tr>`).join('');
+}
+document.addEventListener('click',e=>{
+  const th=e.target.closest('.scr-tbl thead th[data-sc]');if(!th)return;
+  const t=th.dataset.t,col=th.dataset.sc,s=S[t];
+  s.scrDir=s.scrCol===col?(s.scrDir==='asc'?'desc':'asc'):((col==='name'||col==='ticker'||col==='sector')?'asc':'desc'); s.scrCol=col;
+  th.closest('table').querySelectorAll('thead th').forEach(h=>{h.classList.remove('ss');const a=h.querySelector('.sar');if(a)a.textContent='↕';});
+  th.classList.add('ss');const a=th.querySelector('.sar');if(a)a.textContent=s.scrDir==='asc'?'↑':'↓';
+  renderScr(t);
+});
+
+/* ── MODAL ───────────────────────────────────────────────────── */
+function openM(ticker,t){
+  const tk=t||curT,stock=S[tk].quotes.find(x=>x.ticker===ticker);
+  if(!stock)return;
+  mTicker=ticker; mPeriod='1mo';
+  const c=CFG[tk];
+  document.getElementById('m-co').textContent=stock.name;
+  document.getElementById('m-tk').textContent=`${ticker} · ${stock.sector}`;
+  document.getElementById('m-tk').style.color=c.acc;
+  document.getElementById('m-pr').textContent=fC(stock.price);
+  const chEl=document.getElementById('m-ch');
+  chEl.textContent=`${stock.change!=null?(stock.change>=0?'+':'')+f2(stock.change):'—'} (${fP(stock.change_pct)})`;
+  chEl.className='mch '+cCl(stock.change_pct);
+  document.getElementById('m-met').innerHTML=[
+    ['Open',fC(stock.open)],['Day High',fC(stock.high)],['Day Low',fC(stock.low)],
+    ['Volume',fV(stock.volume)],['Market Cap',fM(stock.market_cap)],
+    ['P/E Ratio',stock.pe_ratio!=null?f2(stock.pe_ratio,1):'—'],
+    ['52W High',fC(stock.week52_high)],['52W Low',fC(stock.week52_low)],
+    ['Beta',stock.beta!=null?f2(stock.beta,2):'—'],
+  ].map(([l,v])=>`<div class="mi"><div class="mi-lb">${l}</div><div class="mi-v">${v}</div></div>`).join('');
+  const sym=ticker.replace('.NS','').replace('.BO','');
+  document.getElementById('m-nse').href=`https://www.nseindia.com/get-quotes/equity?symbol=${sym}`;
+  document.getElementById('m-nse').style.cssText=`background:${c.dim};border-color:${c.bd};color:${c.acc}`;
+  document.querySelectorAll('.ctab').forEach(b=>{
+    const on=b.dataset.period===mPeriod;
+    b.classList.toggle('on',on);
+    b.style.borderColor=on?c.acc:''; b.style.color=on?c.acc:''; b.style.background=on?c.dim:'';
+  });
+  document.getElementById('mo').classList.add('on');
+  loadChart(ticker,mPeriod,c.acc);
+}
+document.querySelectorAll('.ctab').forEach(btn=>{
+  btn.onclick=()=>{
+    mPeriod=btn.dataset.period;
+    const c=CFG[curT];
+    document.querySelectorAll('.ctab').forEach(b=>{
+      const on=b.dataset.period===mPeriod;
+      b.classList.toggle('on',on);
+      b.style.borderColor=on?c.acc:''; b.style.color=on?c.acc:''; b.style.background=on?c.dim:'';
+    });
+    if(mTicker)loadChart(mTicker,mPeriod,c.acc);
+  };
+});
+async function loadChart(ticker,period){
+  const ld=document.getElementById('mld');
+  ld.style.display='flex';
+  if(mChart){mChart.destroy();mChart=null;}
+  try{
+    const r=await fetch(`${API}/api/history?ticker=${encodeURIComponent(ticker)}&period=${period}`);
+    const j=await r.json(),data=j.data||[];
+    const labels=data.map(d=>d.date),closes=data.map(d=>d.close);
+    const up=closes.length>1&&closes[closes.length-1]>=closes[0],col=up?'#00e87a':'#ff3d5a';
+    ld.style.display='none';
+    const ctx=document.getElementById('m-chart').getContext('2d');
+    const isLM=document.body.classList.contains('lm');
+    mChart=new Chart(ctx,{type:'line',
+      data:{labels,datasets:[{data:closes,borderColor:col,borderWidth:2,pointRadius:0,tension:.3,fill:true,
+        backgroundColor:c2=>{const g=c2.chart.ctx.createLinearGradient(0,0,0,240);g.addColorStop(0,col+'44');g.addColorStop(1,col+'00');return g;}}]},
+      options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},
+        plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,
+          backgroundColor:isLM?'#f5f2eb':'#1a1a2e',borderColor:isLM?'#d6d0c6':'#353560',
+          borderWidth:1,titleColor:'#a8a8cc',bodyColor:'#f0f0ff',
+          callbacks:{label:c=>'₹'+Number(c.raw).toLocaleString('en-IN',{maximumFractionDigits:2})}}},
+        scales:{
+          x:{grid:{color:isLM?'#e0dbd0':'#1e1e30'},ticks:{color:'#6e6e98',font:{family:'JetBrains Mono',size:10},maxTicksLimit:8}},
+          y:{grid:{color:isLM?'#e0dbd0':'#1e1e30'},ticks:{color:'#6e6e98',font:{family:'JetBrains Mono',size:10},callback:v=>'₹'+Number(v).toLocaleString('en-IN',{maximumFractionDigits:0})}}
+        }
+      }
+    });
+  }catch{ld.textContent='⚠ Chart data unavailable';}
+}
+function closeM(){
+  document.getElementById('mo').classList.remove('on');
+  if(mChart){mChart.destroy();mChart=null;}
+  mTicker=null;
+}
+document.getElementById('m-cl').onclick=closeM;
+document.getElementById('mo').onclick=e=>{if(e.target===document.getElementById('mo'))closeM();};
+
+/* ── DATA FETCHING ───────────────────────────────────────────── */
+
+// ── per-endpoint fetchers ──────────────────────────────────────
+async function fetchQ(t){
+  try{
+    const r=await fetch(`${API}/api/quotes?tracker=${t}`);
+    if(!r.ok)throw new Error();
+    S[t].quotes=await r.json();
+    document.getElementById('err-'+t).style.display='none';
+  }catch{ document.getElementById('err-'+t).style.display='block'; }
+}
+async function fetchSpark(t){
+  try{
+    const r=await fetch(`${API}/api/sparklines?tracker=${t}`);
+    if(r.ok) S[t].spark=await r.json();
+  }catch{}
+}
+async function fetchHM(t){
+  try{
+    const r=await fetch(`${API}/api/sector-heatmap?tracker=${t}`);
+    if(!r.ok)throw new Error();
+    S[t].hm=await r.json(); renderHM(t);
+  }catch{
+    document.getElementById('hmb-'+t).innerHTML=
+      '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:20px">⚠ Unable to load heatmap data</td></tr>';
+  }
+}
+async function fetchScr(t){
+  try{
+    const r=await fetch(`${API}/api/screener?tracker=${t}`);
+    if(!r.ok)throw new Error();
+    S[t].scr=await r.json(); renderScr(t);
+  }catch{
+    document.getElementById('scrb-'+t).innerHTML=
+      '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:20px">⚠ Unable to load screener data</td></tr>';
+    document.getElementById('sc-'+t).textContent='Error';
+  }
+}
+
+// ── foreground load (user-initiated, renders immediately) ──────
+async function loadT(t){
+  S[t].loading=true;
+  await Promise.all([fetchQ(t), fetchSpark(t)]);
+  const ts=new Date().toLocaleString('en-IN',{
+    timeZone:'Asia/Kolkata',hour:'2-digit',minute:'2-digit',second:'2-digit'
+  });
+  document.getElementById('upd').textContent=ts;
+  document.getElementById('fref').textContent=ts;
+  renderKPI(t); buildTabs(t); renderTable(t); renderCards(t);
+  // fire slow endpoints without blocking the render
+  fetchHM(t); fetchScr(t);
+  S[t].loaded=true;
+  S[t].loading=false;
+}
+
+// ── background prefetch queue ──────────────────────────────────
+//
+// Strategy (yfinance-safe):
+//   • Wait BG_START_DELAY ms after page load before touching any background tracker
+//   • Process remaining trackers one at a time (sequential, never concurrent)
+//   • Within each background tracker:
+//       1. quotes + sparklines in parallel  (fast, ~1–3 s)
+//       2. INTRA_DELAY ms pause
+//       3. heatmap fetch                    (slow yf.download 1y)
+//       4. INTRA_DELAY ms pause
+//       5. screener fetch                   (slow yf.download 1y)
+//   • INTER_DELAY ms gap between trackers
+//   • Skip any tracker already loaded or currently loading
+//   • API has 60 s server-side cache, so if user clicks a tracker that was
+//     mid-background-fetch the foreground loadT() will hit the warm cache
+//
+const BG_START_DELAY = 5000;   // ms after page ready before first bg fetch
+const INTER_DELAY    = 8000;   // ms between background trackers
+const INTRA_DELAY    = 3000;   // ms between slow endpoints within one tracker
+
+let _bgRunning = false;
+
+async function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+async function bgLoadOne(t){
+  // If user has already loaded this tracker (foreground), skip entirely
+  if(S[t].loaded || S[t].loading) return;
+
+  S[t].loading = true;
+  try{
+    // Step 1 — quotes + sparklines (fast, safe to parallelise for one tracker)
+    await Promise.all([fetchQ(t), fetchSpark(t)]);
+
+    if(S[t].loaded) return; // foreground beat us — stop here, data already rendered
+
+    // Mark loaded so switchT() won't re-fetch, then render if this is now active
+    S[t].loaded = true;
+    S[t].loading = false;
+
+    if(curT === t){
+      // User switched to this tracker while it was prefetching — render it now
+      renderKPI(t); buildTabs(t); renderTable(t); renderCards(t);
+    }
+
+    // Step 2 — slow endpoints staggered to stay under rate limits
+    await sleep(INTRA_DELAY);
+    if(!S[t].hm.length) await fetchHM(t);
+
+    await sleep(INTRA_DELAY);
+    if(!S[t].scr.length) await fetchScr(t);
+
+    // If this tracker became active while we were fetching slow data, re-render
+    if(curT === t){ renderHM(t); renderScr(t); }
+
+  }catch(e){
+    S[t].loading = false;
+  }
+}
+
+async function startBgPrefetch(activeTracker){
+  if(_bgRunning) return;
+  _bgRunning = true;
+
+  // Build ordered queue: remaining trackers, active one last (already loaded anyway)
+  const ALL = Object.keys(CFG);
+  const queue = ALL.filter(t => t !== activeTracker);
+
+  await sleep(BG_START_DELAY);
+
+  for(const t of queue){
+    if(S[t].loaded || S[t].loading){ continue; }
+    await bgLoadOne(t);
+    // Inter-tracker gap even if bgLoadOne returned early (guard against cached-fast responses)
+    await sleep(INTER_DELAY);
+  }
+
+  _bgRunning = false;
+}
+
+/* ── MANUAL REFRESH ──────────────────────────────────────────── */
+async function manualRef(){
+  const btn=document.getElementById('ref-btn'),ic=document.getElementById('ref-ic');
+  if(btn.disabled) return;
+  btn.disabled=true; ic.style.animation='spin .7s linear infinite'; btn.style.opacity='.65';
+  // Only reload the active tracker; background cache will refresh on its own TTL
+  S[curT].loaded=false;
+  try{ await loadT(curT); }
+  finally{ ic.style.animation=''; btn.disabled=false; btn.style.opacity=''; }
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────────────── */
+let sbCol=false;
+function toggleSB(){
+  sbCol=!sbCol;
+  document.getElementById('sb').classList.toggle('col',sbCol);
+  document.getElementById('mw').classList.toggle('col',sbCol);
+  document.getElementById('sb-tog-ic').textContent=sbCol?'▶':'◀';
+}
+
+/* ── THEME ───────────────────────────────────────────────────── */
+function toggleTheme(){
+  const lm=document.body.classList.toggle('lm');
+  document.getElementById('thm-ic').textContent=lm?'☀️':'🌙';
+  document.getElementById('thm-lb').textContent=lm?'Light':'Dark';
+  localStorage.setItem('theme',lm?'light':'dark');
+}
+
+/* ── INIT ────────────────────────────────────────────────────── */
+(function(){
+  if(localStorage.getItem('theme')!=='dark'){
+    document.body.classList.add('lm');
+    document.getElementById('thm-ic').textContent='☀️';
+    document.getElementById('thm-lb').textContent='Light';
+  }
+  setAccent('ai');
+  // Load active tracker immediately, then kick off background prefetch
+  loadT('ai').then(() => startBgPrefetch('ai'));
+})();
+/* ═══ COLLAPSIBLE SECTIONS ════════════════════════════════════════════════ */
+(function initCollapsibles() {
+  'use strict';
+
+  var TRACKERS = ['ai','ev','en','defence','pharma'];
+
+  /* read/write session state */
+  function wasOpen(key) {
+    try { var v = sessionStorage.getItem(key); return v === null || v === '1'; }
+    catch(e) { return true; }
+  }
+  function saveState(key, open) {
+    try { sessionStorage.setItem(key, open ? '1' : '0'); } catch(e) {}
+  }
+
+  /* build the ▾ chevron span */
+  function makeChevron(open) {
+    var el = document.createElement('span');
+    el.className = 'sec-chevron' + (open ? ' open' : '');
+    el.textContent = '▾';
+    el.setAttribute('aria-hidden', 'true');
+    return el;
+  }
+
+  /* build the collapsed count chip */
+  function makeChip(text) {
+    var el = document.createElement('span');
+    el.className = 'sec-chip';
+    el.textContent = text;
+    return el;
+  }
+
+  /*
+   * Wire one header ↔ body pair.
+   * headerEl  – the clickable row (.thb / .hmw-hd / .scr-hd)
+   * bodyEl    – the element to show/hide (.tsc / .hm-box / .scr-box)
+   * wrapEl    – outer wrapper for collapsed class (.tw / .hmw / .scrw)
+   * key       – sessionStorage key
+   * chipText  – text shown when collapsed
+   */
+  function wire(headerEl, bodyEl, wrapEl, key, chipText) {
+    var open = wasOpen(key);
+    var chevron = makeChevron(open);
+    var chip    = makeChip(chipText);
+
+    /* append chip then chevron to the right end of the header */
+    headerEl.appendChild(chip);
+    headerEl.appendChild(chevron);
+
+    /* apply initial state */
+    if (!open) {
+      bodyEl.classList.add('sec-hidden');
+      wrapEl.classList.add('sec-collapsed');
+    }
+
+    /* click handler */
+    headerEl.addEventListener('click', function(e) {
+      /* don't fire when clicking a sort-arrow inside the screener header */
+      if (e.target.closest('th')) return;
+
+      var isOpen = !bodyEl.classList.contains('sec-hidden');
+      if (isOpen) {
+        bodyEl.classList.add('sec-hidden');
+        wrapEl.classList.add('sec-collapsed');
+        chevron.classList.remove('open');
+      } else {
+        bodyEl.classList.remove('sec-hidden');
+        wrapEl.classList.remove('sec-collapsed');
+        chevron.classList.add('open');
+      }
+      saveState(key, !isOpen);
+    });
+  }
+
+  /* wire all 5 trackers × 3 section types */
+  TRACKERS.forEach(function(t) {
+    var panel = document.getElementById('tp-' + t);
+    if (!panel) return;
+
+    /* 1 — NSE Universe table */
+    var tw  = panel.querySelector('.tw');
+    if (tw) {
+      var thb = tw.querySelector('.thb');
+      var tsc = tw.querySelector('.tsc');
+      if (thb && tsc) wire(thb, tsc, tw, 'col_tbl_' + t, 'table hidden');
+    }
+
+    /* 2 — Sector / Segment Heat Map */
+    var hmw = panel.querySelector('.hmw');
+    if (hmw) {
+      var hmhd  = hmw.querySelector('.hmw-hd');
+      var hmbox = hmw.querySelector('.hm-box');
+      if (hmhd && hmbox) wire(hmhd, hmbox, hmw, 'col_hm_' + t, 'heatmap hidden');
+    }
+
+    /* 3 — Stock Screener */
+    var scrw = panel.querySelector('.scrw');
+    if (scrw) {
+      var scrhd  = scrw.querySelector('.scr-hd');
+      var scrbox = scrw.querySelector('.scr-box');
+      if (scrhd && scrbox) wire(scrhd, scrbox, scrw, 'col_scr_' + t, 'screener hidden');
+    }
+  });
+
+})();
+
+</script>
+</body>
+</html>
