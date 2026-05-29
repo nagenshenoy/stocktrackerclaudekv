@@ -78,8 +78,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 #sb.col .sb-tog-lb{opacity:0;width:0}
 
 /* ═══ MAIN WRAP ════════════════════════════════════════════ */
-#mw{margin-left:var(--sw);width:calc(100vw - var(--sw));max-width:calc(100vw - var(--sw));min-width:0;flex:0 0 calc(100vw - var(--sw));min-height:100vh;display:flex;flex-direction:column;transition:margin-left .25s cubic-bezier(.4,0,.2,1),width .25s cubic-bezier(.4,0,.2,1),max-width .25s cubic-bezier(.4,0,.2,1),flex-basis .25s cubic-bezier(.4,0,.2,1);position:relative;z-index:1;overflow-x:hidden}
-#mw.col{margin-left:var(--sc);width:calc(100vw - var(--sc));max-width:calc(100vw - var(--sc));flex-basis:calc(100vw - var(--sc))}
+#mw{margin-left:var(--sw);flex:1;min-height:100vh;display:flex;flex-direction:column;transition:margin-left .25s cubic-bezier(.4,0,.2,1);position:relative;z-index:1;min-width:0;max-width:calc(100vw - var(--sw));overflow-x:hidden}
+#mw.col{margin-left:var(--sc);max-width:calc(100vw - var(--sc))}
 
 /* ═══ HEADER ═══════════════════════════════════════════════ */
 #hdr{position:sticky;top:0;z-index:100;background:rgba(7,7,13,.94);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 24px}
@@ -107,13 +107,6 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .ref-btn{display:inline-flex;align-items:center;gap:5px;background:var(--bg-card);border:1px solid var(--border-hi);border-radius:6px;padding:4px 12px;cursor:pointer;font-family:var(--fn);font-size:11px;font-weight:600;color:var(--text-sec);letter-spacing:.04em;transition:all .2s;white-space:nowrap;line-height:1.4}
 .ref-btn:hover{border-color:var(--acc);color:var(--acc)}
 .ref-btn:active{transform:scale(.97)}
-.auto-ref{display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1px solid var(--border-hi);border-radius:100px;padding:5px 12px 5px 8px;cursor:pointer;font-family:var(--fn);font-size:11px;font-weight:700;color:var(--text-sec);letter-spacing:.04em;transition:all .2s;white-space:nowrap}
-.auto-ref:hover{border-color:var(--acc);color:var(--acc)}
-.auto-ref.on{border-color:var(--acc);color:var(--acc);background:var(--acc-dim)}
-.auto-ref .tog-trk{width:30px;height:16px;border-radius:8px;background:var(--border-hi);position:relative;transition:background .25s;flex-shrink:0}
-.auto-ref.on .tog-trk{background:var(--acc)}
-.auto-ref .tog-th{position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;transition:transform .25s cubic-bezier(.34,1.56,.64,1);box-shadow:0 1px 3px rgba(0,0,0,.3)}
-.auto-ref.on .tog-th{transform:translateX(14px)}
 .thm-tog{display:flex;align-items:center;gap:7px;background:var(--bg-card);border:1px solid var(--border-hi);border-radius:100px;padding:5px 12px 5px 8px;cursor:pointer;font-family:var(--fn);font-size:11px;font-weight:600;color:var(--text-sec);letter-spacing:.04em;transition:all .2s;white-space:nowrap}
 .thm-tog:hover{border-color:var(--acc);color:var(--acc)}
 .tog-trk{width:30px;height:16px;border-radius:8px;background:var(--border-hi);position:relative;transition:background .25s;flex-shrink:0}
@@ -122,7 +115,7 @@ body.lm .tog-trk{background:var(--acc)}
 body.lm .tog-th{transform:translateX(14px)}
 
 /* ═══ CONTAINER + PANELS ═══════════════════════════════════ */
-.ctn{padding:20px 24px 40px;position:relative;z-index:1;flex:1}
+.ctn{padding:20px 24px 40px;position:relative;z-index:1;flex:1;min-width:0;max-width:100%;overflow-x:hidden}
 .tp{display:none}
 .tp.on{display:block;animation:fadeUp .3s ease}
 
@@ -151,7 +144,7 @@ body.lm .tog-th{transform:translateX(14px)}
 .st .cnt{background:rgba(255,255,255,.1);border-radius:10px;padding:1px 6px;margin-left:4px;font-size:10px}
 
 /* ═══ STOCK TABLE ══════════════════════════════════════════ */
-.tw{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:24px}
+.tw{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rl);overflow:visible;margin-bottom:24px}
 .thb{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text-sec);font-weight:600}
 .tsc{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
@@ -210,9 +203,9 @@ td.mu{color:var(--text-sec);font-weight:500}
 .hmw-t{font-family:var(--fs);font-size:18px;font-weight:700;color:var(--text-primary);letter-spacing:-.01em}
 .hmw-t em{font-style:italic;color:var(--acc);font-weight:600;transition:color .3s}
 .hmw-s{font-family:var(--fn);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted)}
-.hm-box{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.hm-box{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;overflow:visible}
 .hm-sc{overflow-x:auto}
-.hm-t{width:100%;border-collapse:collapse;font-family:var(--fn);font-size:12px;min-width:700px}
+.hm-t{width:100%;border-collapse:collapse;font-family:var(--fn);font-size:12px}
 .hm-t thead tr{background:var(--bg-secondary);border-bottom:2px solid var(--border-hi)}
 .hm-t thead th{padding:10px 16px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);white-space:nowrap;user-select:none;cursor:pointer;transition:color .15s}
 .hm-t thead th:first-child{text-align:left;min-width:220px}
@@ -248,9 +241,9 @@ td.hmv{padding:5px 6px}
 .scr-t{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-sec)}
 .scr-t span{color:var(--acc);transition:color .3s}
 .scr-cnt{font-family:var(--fn);font-size:11px;color:var(--text-muted)}
-.scr-box{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.scr-box{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;overflow:visible}
 .scr-sc{overflow-x:auto}
-.scr-tbl{width:100%;border-collapse:collapse;font-family:var(--fn);font-size:12px;min-width:860px}
+.scr-tbl{width:100%;border-collapse:collapse;font-family:var(--fn);font-size:12px}
 .scr-tbl thead tr{background:var(--bg-secondary);border-bottom:1px solid var(--border-hi)}
 .scr-tbl thead th{padding:10px 12px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);white-space:nowrap;user-select:none;cursor:pointer;transition:color .15s;border-right:1px solid var(--border)}
 .scr-tbl thead th:last-child{border-right:none}
@@ -345,21 +338,12 @@ body.lm tbody tr.rgs{background:rgba(45,106,79,.14)}
 body.lm tbody tr.rls{background:rgba(169,50,38,.12)}
 body.lm tbody tr:hover{background:#e8e4da}
 
-
-/* Sector Performance percent colors — fixed across all trackers */
-.scard .g,
-.scard-ch.g,
-.spct.g { color:#2E6F40 !important; }
-.scard .r,
-.scard-ch.r,
-.spct.r { color:#FF2C2C !important; }
-
 /* ═══ RESPONSIVE ═══════════════════════════════════════════ */
 @media(max-width:1200px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:900px){
   #sb{width:var(--sc)}
   #sb .ni-lb,#sb .ni-bd,#sb .sb-logo-text,#sb .sb-logo-sub,#sb .sb-sec,#sb .sb-tog-lb{opacity:0;width:0}
-  #mw{margin-left:var(--sc);width:calc(100vw - var(--sc));max-width:calc(100vw - var(--sc));flex-basis:calc(100vw - var(--sc))}
+  #mw{margin-left:var(--sc)}
 }
 @media(max-width:768px){
   .ctn{padding:12px 16px 32px}
@@ -490,82 +474,88 @@ body.lm tbody tr:hover{background:#e8e4da}
 /* Screener company cell: keep existing max-width truncation */
 .s-co { max-width: 180px }
 
-/* KPI strip: allow 3-col on medium, 2-col on small */
-@media (max-width: 1100px) {
-  .kpi-row { grid-template-columns: repeat(3,1fr) }
-}
-@media (max-width: 640px) {
-  .kpi-row { grid-template-columns: repeat(2,1fr) }
-}
+/* KPI responsiveness handled by content-fit block below */
 
 /* Sector tab: tooltip via title attribute (set by JS) */
 .st[title] { cursor: pointer }
 
-/* ── Layout overflow fixes (all trackers) ─────────────────────────
-   Root causes:
-   1. .tw / .hm-box / .scr-box all had overflow:hidden which killed
-      the horizontal scroll of their .tsc / .hm-sc / .scr-sc children.
-      Fix: switch to overflow:clip so border-radius is preserved but
-      scrollable children are no longer clipped.
-   2. Header switcher (.tsw) has no overflow handling with 6 buttons.
-      Fix: allow flex-wrap + shrink padding at narrow widths.
-   3. Stock table inside .tsc had no explicit min-width, so columns
-      compressed instead of triggering the scroll container.
+
+
+/* ── Content fit + Business Houses layout ─────────────────────────
+   Fixes:
+   1. #mw max-width prevents content exceeding viewport
+   2. .ctn overflow-x:hidden + min-width:0 prevents flex blowout
+   3. .tw/.hm-box/.scr-box overflow:visible lets inner scroll work
+   4. Stock table uses auto layout so columns fit naturally
+   5. Sparkline col fixed at 90px so 80px SVG is never clipped
+   6. BH-specific: company names truncate, group pills truncate
+   7. KPI, tabs, cards all responsive
 ──────────────────────────────────────────────────────────────────── */
 
-/* Fix 1a — stock table card: switch from overflow:hidden to clip */
-.tw {
-  overflow: clip;           /* preserves border-radius, allows child scroll */
-  overflow-clip-margin: 0;
+/* ── All content cards: constrain width ── */
+.tw, .hmw, .scrw, .kpi-row, .sec-nav, .srow { max-width: 100%; min-width: 0 }
+
+/* ── Stock table: auto layout, constrained container ── */
+.tsc { overflow-x: auto; max-width: 100% }
+.tsc table { table-layout: auto; width: 100%; min-width: 700px }
+
+/* Sparkline column: fixed width so 80px SVG always fits */
+.tsc table th:last-child,
+.tsc table td:last-child { width: 90px; min-width: 90px; max-width: 90px }
+
+/* Sparkline SVG: never overflow its cell */
+.tsc table td:last-child svg { display: block; max-width: 100% }
+.tsc table td:last-child span { display: block }
+
+/* Ticker badge: no wrap */
+.tb { white-space: nowrap }
+
+/* Company name cell: truncate in table */
+.cn { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block }
+
+/* Sector/Group pill: truncate at 18ch */
+.sp { max-width: 14ch; overflow: hidden; text-overflow: ellipsis;
+      white-space: nowrap; display: inline-block; vertical-align: middle }
+
+/* ── Heatmap: constrained, scrolls if needed ── */
+.hm-sc { overflow-x: auto; max-width: 100% }
+.hm-t  { width: 100%; min-width: 500px }
+.hm-t thead th:first-child,
+.hm-t tbody td:first-child { min-width: 160px; max-width: 200px }
+.hm-sc-nm { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block }
+
+/* ── Screener: constrained, scrolls if needed ── */
+.scr-sc  { overflow-x: auto; max-width: 100% }
+.scr-tbl { width: 100%; min-width: 580px }
+.s-co { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.s-se { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.s-tk { white-space: nowrap }
+
+/* ── Sector perf cards: constrained scroll ── */
+.srow  { overflow-x: auto; max-width: 100% }
+.sgrid { display: flex; gap: 10px; width: max-content }
+.scard { width: 180px; flex-shrink: 0 }
+.scard-nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+
+/* ── KPI strip: responsive grid ── */
+@media (max-width: 1200px) { .kpi-row { grid-template-columns: repeat(3,1fr) } }
+@media (max-width: 700px)  { .kpi-row { grid-template-columns: repeat(2,1fr) } }
+
+/* ── Sector filter tabs: wrap cleanly ── */
+.sec-nav { flex-wrap: wrap; row-gap: 5px }
+.st { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+
+/* ── Header switcher: compact then hide ── */
+@media (max-width: 1100px) {
+  .tbtn { padding: 3px 7px; font-size: 9px }
 }
-/* Fix 1b — tsc needs explicit min-height so collapsed state still clips */
-.tsc { min-height: 0 }
-
-/* Fix 2a — heatmap box: same treatment */
-.hm-box { overflow: clip; overflow-clip-margin: 0 }
-
-/* Fix 2b — screener box: same treatment */
-.scr-box { overflow: clip; overflow-clip-margin: 0 }
-
-/* Fix 3 — stock table explicit min-width so columns don't compress */
-.tsc > table { min-width: 900px }
-
-/* Fix 4 — header switcher: wrap gracefully at narrow widths */
-.tsw {
-  flex-wrap: wrap;
-  border-radius: 12px;
-  max-width: 360px;
-}
-.tbtn { padding: 3px 8px; font-size: 9.5px; letter-spacing: .03em }
-
-/* Fix 4b — at very narrow widths hide switcher (sidebar handles nav) */
-@media (max-width: 860px) { .tsw { display: none } }
-
-/* Fix 5 — hdr-meta: prevent overflow on narrow viewports */
-.hdr-meta { flex-wrap: wrap; row-gap: 4px; overflow: visible }
-
-/* Fix 6 — ensure hm-sc and scr-sc are proper scroll containers */
-.hm-sc  { overflow-x: auto; overflow-y: visible }
-.scr-sc { overflow-x: auto; overflow-y: visible }
-
-/* Fix 7 — srow (sector perf cards): ensure it scrolls, not clips */
-.srow { overflow-x: auto; overflow-y: visible }
-
-/* Fix 8 — prevent content cards from enlarging the page width.
-   Wide tables should scroll inside their own cards, not push #mw beyond viewport. */
-.ctn,.tp,.tw,.tsc,.hmw,.hm-box,.hm-sc,.scrw,.scr-box,.scr-sc,.srow{min-width:0;max-width:100%}
-.tsc,.hm-sc,.scr-sc{display:block;width:100%;max-width:100%;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
-#tp-bh .tsc > table{min-width:980px}
-#tp-bh .cn{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#tp-bh .sp{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
-
-@media (max-width: 760px){
-  #mw,#mw.col{margin-left:var(--sc);width:calc(100vw - var(--sc));max-width:calc(100vw - var(--sc));flex-basis:calc(100vw - var(--sc))}
-  #hdr{padding:0 12px}
-  .ctn{padding:14px 12px 28px}
-  .thb,.hmw-hd,.scr-hd{padding-left:12px;padding-right:12px}
+@media (max-width: 860px) {
+  .tsw { display: none }
 }
 
+/* ── .thb border-radius when .tw is overflow:visible ── */
+.thb { border-radius: var(--rl) var(--rl) 0 0 }
+.tw.sec-collapsed .thb { border-radius: var(--rl) }
 </style>
 </head>
 <body>
@@ -625,10 +615,7 @@ body.lm tbody tr:hover{background:#e8e4da}
         <div class="hdr-clk" id="clk">--:--:-- IST</div>
         <div class="hdr-ref">
           <div style="margin-bottom:4px">Updated: <span id="upd">—</span></div>
-          <button id="auto-ref" class="auto-ref" onclick="toggleAutoRefresh()" aria-pressed="false" title="Auto refreshes all trackers every 15 minutes when On">
-            <span id="auto-ref-lb">Auto Refresh On</span>
-            <div class="tog-trk"><div class="tog-th"></div></div>
-          </button>
+          <button id="ref-btn" class="ref-btn" onclick="manualRef()"><span id="ref-ic">↻</span> Refresh</button>
         </div>
         <button class="thm-tog" onclick="toggleTheme()">
           <span id="thm-ic">🌙</span>
@@ -662,8 +649,8 @@ body.lm tbody tr:hover{background:#e8e4da}
     <th>#</th><th data-col="name" data-t="ai">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="ai">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="ai">Sector <span class="sa">↕</span></th>
     <th data-col="price" class="num" data-t="ai">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="ai">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="ai">Chg % <span class="sa">↓</span></th>
     <th data-col="high" class="num" data-t="ai">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="ai">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="ai">Volume <span class="sa">↕</span></th>
-    <th data-col="week52_high" class="num" data-t="ai">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="ai">52W Lo <span class="sa">↕</span></th><th>7D</th>
-  </tr></thead><tbody id="tb-ai"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
+    <th data-col="market_cap" class="num" data-t="ai">Mkt Cap <span class="sa">↕</span></th><th data-col="week52_high" class="num" data-t="ai">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="ai">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-ai"><tr><td colspan="14"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
   <div class="sh">Sector Performance</div><div class="srow"><div class="sgrid" id="sg-ai"></div></div>
   <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Sector <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Sector × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-ai"><thead><tr>
@@ -696,8 +683,8 @@ body.lm tbody tr:hover{background:#e8e4da}
     <th>#</th><th data-col="name" data-t="ev">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="ev">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="ev">Segment <span class="sa">↕</span></th>
     <th data-col="price" class="num" data-t="ev">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="ev">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="ev">Chg % <span class="sa">↓</span></th>
     <th data-col="high" class="num" data-t="ev">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="ev">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="ev">Volume <span class="sa">↕</span></th>
-    <th data-col="week52_high" class="num" data-t="ev">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="ev">52W Lo <span class="sa">↕</span></th><th>7D</th>
-  </tr></thead><tbody id="tb-ev"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
+    <th data-col="market_cap" class="num" data-t="ev">Mkt Cap <span class="sa">↕</span></th><th data-col="week52_high" class="num" data-t="ev">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="ev">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-ev"><tr><td colspan="14"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
   <div class="sh">Segment Performance</div><div class="srow"><div class="sgrid" id="sg-ev"></div></div>
   <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Segment <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Segment × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-ev"><thead><tr>
@@ -730,8 +717,8 @@ body.lm tbody tr:hover{background:#e8e4da}
     <th>#</th><th data-col="name" data-t="en">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="en">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="en">Sector <span class="sa">↕</span></th>
     <th data-col="price" class="num" data-t="en">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="en">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="en">Chg % <span class="sa">↓</span></th>
     <th data-col="high" class="num" data-t="en">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="en">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="en">Volume <span class="sa">↕</span></th>
-    <th data-col="week52_high" class="num" data-t="en">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="en">52W Lo <span class="sa">↕</span></th><th>7D</th>
-  </tr></thead><tbody id="tb-en"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
+    <th data-col="market_cap" class="num" data-t="en">Mkt Cap <span class="sa">↕</span></th><th data-col="week52_high" class="num" data-t="en">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="en">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-en"><tr><td colspan="14"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
   <div class="sh">Sector Performance</div><div class="srow"><div class="sgrid" id="sg-en"></div></div>
   <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Sector <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Sector × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-en"><thead><tr>
@@ -764,8 +751,8 @@ body.lm tbody tr:hover{background:#e8e4da}
     <th>#</th><th data-col="name" data-t="defence">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="defence">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="defence">Sub-Sector <span class="sa">↕</span></th>
     <th data-col="price" class="num" data-t="defence">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="defence">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="defence">Chg % <span class="sa">↓</span></th>
     <th data-col="high" class="num" data-t="defence">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="defence">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="defence">Volume <span class="sa">↕</span></th>
-    <th data-col="week52_high" class="num" data-t="defence">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="defence">52W Lo <span class="sa">↕</span></th><th>7D</th>
-  </tr></thead><tbody id="tb-defence"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
+    <th data-col="market_cap" class="num" data-t="defence">Mkt Cap <span class="sa">↕</span></th><th data-col="week52_high" class="num" data-t="defence">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="defence">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-defence"><tr><td colspan="14"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
   <div class="sh">Sub-Sector Performance</div><div class="srow"><div class="sgrid" id="sg-defence"></div></div>
   <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Sub-Sector <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Sub-Sector × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-defence"><thead><tr>
@@ -798,8 +785,8 @@ body.lm tbody tr:hover{background:#e8e4da}
     <th>#</th><th data-col="name" data-t="pharma">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="pharma">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="pharma">Segment <span class="sa">↕</span></th>
     <th data-col="price" class="num" data-t="pharma">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="pharma">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="pharma">Chg % <span class="sa">↓</span></th>
     <th data-col="high" class="num" data-t="pharma">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="pharma">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="pharma">Volume <span class="sa">↕</span></th>
-    <th data-col="week52_high" class="num" data-t="pharma">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="pharma">52W Lo <span class="sa">↕</span></th><th>7D</th>
-  </tr></thead><tbody id="tb-pharma"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:95%"></div></td></tr></tbody></table></div></div>
+    <th data-col="market_cap" class="num" data-t="pharma">Mkt Cap <span class="sa">↕</span></th><th data-col="week52_high" class="num" data-t="pharma">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="pharma">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-pharma"><tr><td colspan="14"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:90%"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:95%"></div></td></tr></tbody></table></div></div>
   <div class="sh">Segment Performance</div><div class="srow"><div class="sgrid" id="sg-pharma"></div></div>
   <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Segment <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Segment × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-pharma"><thead><tr>
@@ -831,8 +818,8 @@ body.lm tbody tr:hover{background:#e8e4da}
     <th>#</th><th data-col="name" data-t="bh">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="bh">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="bh">Group <span class="sa">↕</span></th>
     <th data-col="price" class="num" data-t="bh">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="bh">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="bh">Chg % <span class="sa">↓</span></th>
     <th data-col="high" class="num" data-t="bh">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="bh">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="bh">Volume <span class="sa">↕</span></th>
-    <th data-col="week52_high" class="num" data-t="bh">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="bh">52W Lo <span class="sa">↕</span></th><th>7D</th>
-  </tr></thead><tbody id="tb-bh"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:95%"></div></td></tr></tbody></table></div></div>
+    <th data-col="market_cap" class="num" data-t="bh">Mkt Cap <span class="sa">↕</span></th><th data-col="week52_high" class="num" data-t="bh">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="bh">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-bh"><tr><td colspan="14"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:90%"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:95%"></div></td></tr></tbody></table></div></div>
   <div class="sh">Group Performance</div><div class="srow"><div class="sgrid" id="sg-bh"></div></div>
   <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Group <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Group × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-bh"><thead><tr>
@@ -1096,6 +1083,7 @@ function renderTable(t){
       <td class="num mu">${fC(x.high)}</td>
       <td class="num mu">${fC(x.low)}</td>
       <td class="num mu">${fV(x.volume)}</td>
+      <td class="num mu">${fM(x.market_cap)}</td>
       <td class="num mu">${fC(x.week52_high)}</td>
       <td class="num mu">${fC(x.week52_low)}</td>
       <td>${sp}</td>
@@ -1406,72 +1394,15 @@ async function startBgPrefetch(activeTracker){
   _bgRunning = false;
 }
 
-/* ── AUTO REFRESH ────────────────────────────────────────────── */
-const AUTO_REFRESH_MS = 15 * 60 * 1000;
-let autoRefreshOn = localStorage.getItem('autoRefresh') !== 'off';
-let autoRefreshTimer = null;
-
-function setAutoRefreshUI(){
-  const btn=document.getElementById('auto-ref'), lb=document.getElementById('auto-ref-lb');
-  if(!btn || !lb) return;
-  btn.classList.toggle('on', autoRefreshOn);
-  btn.setAttribute('aria-pressed', autoRefreshOn ? 'true' : 'false');
-  lb.textContent = autoRefreshOn ? 'Auto Refresh On' : 'Auto Refresh Off';
-}
-
-let autoRefreshRunning = false;
-
-async function refreshTracker(t){
-  if(S[t].loading) return;
-  S[t].loading = true;
-  try{
-    S[t].loaded = false;
-    await Promise.all([fetchQ(t), fetchSpark(t)]);
-    renderKPI(t); buildTabs(t); renderTable(t); renderCards(t);
-
-    // Refresh slow/derived tables too, but sequentially via runAutoRefresh()
-    await fetchHM(t);
-    await sleep(1200);
-    await fetchScr(t);
-
-    S[t].loaded = true;
-  }catch(e){
-    console.warn('Auto refresh failed for', t, e);
-  }finally{
-    S[t].loading = false;
-  }
-}
-
-async function runAutoRefresh(){
-  if(!autoRefreshOn || autoRefreshRunning) return;
-  autoRefreshRunning = true;
-  try{
-    const trackers = Object.keys(CFG);
-    for(const t of trackers){
-      if(!autoRefreshOn) break;
-      await refreshTracker(t);
-      await sleep(1500);
-    }
-    const ts=new Date().toLocaleString('en-IN',{
-      timeZone:'Asia/Kolkata',hour:'2-digit',minute:'2-digit',second:'2-digit'
-    });
-    document.getElementById('upd').textContent=ts;
-    document.getElementById('fref').textContent=ts;
-  }finally{
-    autoRefreshRunning = false;
-  }
-}
-
-function startAutoRefreshTimer(){
-  if(autoRefreshTimer) clearInterval(autoRefreshTimer);
-  autoRefreshTimer = autoRefreshOn ? setInterval(runAutoRefresh, AUTO_REFRESH_MS) : null;
-}
-
-function toggleAutoRefresh(){
-  autoRefreshOn = !autoRefreshOn;
-  localStorage.setItem('autoRefresh', autoRefreshOn ? 'on' : 'off');
-  setAutoRefreshUI();
-  startAutoRefreshTimer();
+/* ── MANUAL REFRESH ──────────────────────────────────────────── */
+async function manualRef(){
+  const btn=document.getElementById('ref-btn'),ic=document.getElementById('ref-ic');
+  if(btn.disabled) return;
+  btn.disabled=true; ic.style.animation='spin .7s linear infinite'; btn.style.opacity='.65';
+  // Only reload the active tracker; background cache will refresh on its own TTL
+  S[curT].loaded=false;
+  try{ await loadT(curT); }
+  finally{ ic.style.animation=''; btn.disabled=false; btn.style.opacity=''; }
 }
 
 /* ── SIDEBAR ─────────────────────────────────────────────────── */
@@ -1498,9 +1429,6 @@ function toggleTheme(){
     document.getElementById('thm-ic').textContent='☀️';
     document.getElementById('thm-lb').textContent='Light';
   }
-  if(localStorage.getItem('autoRefresh') === null){ localStorage.setItem('autoRefresh','on'); }
-  setAutoRefreshUI();
-  startAutoRefreshTimer();
   setAccent('ai');
   // Load active tracker immediately, then kick off background prefetch
   loadT('ai').then(() => startBgPrefetch('ai'));
