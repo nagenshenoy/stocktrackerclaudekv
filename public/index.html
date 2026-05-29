@@ -345,6 +345,15 @@ body.lm tbody tr.rgs{background:rgba(45,106,79,.14)}
 body.lm tbody tr.rls{background:rgba(169,50,38,.12)}
 body.lm tbody tr:hover{background:#e8e4da}
 
+
+/* Sector Performance percent colors — fixed across all trackers */
+.scard .g,
+.scard-ch.g,
+.spct.g { color:#2E6F40 !important; }
+.scard .r,
+.scard-ch.r,
+.spct.r { color:#FF2C2C !important; }
+
 /* ═══ RESPONSIVE ═══════════════════════════════════════════ */
 @media(max-width:1200px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:900px){
@@ -616,8 +625,8 @@ body.lm tbody tr:hover{background:#e8e4da}
         <div class="hdr-clk" id="clk">--:--:-- IST</div>
         <div class="hdr-ref">
           <div style="margin-bottom:4px">Updated: <span id="upd">—</span></div>
-          <button id="auto-ref" class="auto-ref" onclick="toggleAutoRefresh()" aria-pressed="false" title="Auto refresh every 15 minutes when On">
-            <span id="auto-ref-lb">Auto Refresh Off</span>
+          <button id="auto-ref" class="auto-ref" onclick="toggleAutoRefresh()" aria-pressed="false" title="Auto refreshes all trackers every 15 minutes when On">
+            <span id="auto-ref-lb">Auto Refresh On</span>
             <div class="tog-trk"><div class="tog-th"></div></div>
           </button>
         </div>
@@ -1399,7 +1408,7 @@ async function startBgPrefetch(activeTracker){
 
 /* ── AUTO REFRESH ────────────────────────────────────────────── */
 const AUTO_REFRESH_MS = 15 * 60 * 1000;
-let autoRefreshOn = localStorage.getItem('autoRefresh') === 'on';
+let autoRefreshOn = localStorage.getItem('autoRefresh') !== 'off';
 let autoRefreshTimer = null;
 
 function setAutoRefreshUI(){
@@ -1410,10 +1419,47 @@ function setAutoRefreshUI(){
   lb.textContent = autoRefreshOn ? 'Auto Refresh On' : 'Auto Refresh Off';
 }
 
+let autoRefreshRunning = false;
+
+async function refreshTracker(t){
+  if(S[t].loading) return;
+  S[t].loading = true;
+  try{
+    S[t].loaded = false;
+    await Promise.all([fetchQ(t), fetchSpark(t)]);
+    renderKPI(t); buildTabs(t); renderTable(t); renderCards(t);
+
+    // Refresh slow/derived tables too, but sequentially via runAutoRefresh()
+    await fetchHM(t);
+    await sleep(1200);
+    await fetchScr(t);
+
+    S[t].loaded = true;
+  }catch(e){
+    console.warn('Auto refresh failed for', t, e);
+  }finally{
+    S[t].loading = false;
+  }
+}
+
 async function runAutoRefresh(){
-  if(!autoRefreshOn || S[curT].loading) return;
-  S[curT].loaded=false;
-  await loadT(curT);
+  if(!autoRefreshOn || autoRefreshRunning) return;
+  autoRefreshRunning = true;
+  try{
+    const trackers = Object.keys(CFG);
+    for(const t of trackers){
+      if(!autoRefreshOn) break;
+      await refreshTracker(t);
+      await sleep(1500);
+    }
+    const ts=new Date().toLocaleString('en-IN',{
+      timeZone:'Asia/Kolkata',hour:'2-digit',minute:'2-digit',second:'2-digit'
+    });
+    document.getElementById('upd').textContent=ts;
+    document.getElementById('fref').textContent=ts;
+  }finally{
+    autoRefreshRunning = false;
+  }
 }
 
 function startAutoRefreshTimer(){
@@ -1452,6 +1498,7 @@ function toggleTheme(){
     document.getElementById('thm-ic').textContent='☀️';
     document.getElementById('thm-lb').textContent='Light';
   }
+  if(localStorage.getItem('autoRefresh') === null){ localStorage.setItem('autoRefresh','on'); }
   setAutoRefreshUI();
   startAutoRefreshTimer();
   setAccent('ai');
