@@ -556,6 +556,37 @@ body.lm tbody tr:hover{background:#e8e4da}
 /* ── .thb border-radius when .tw is overflow:visible ── */
 .thb { border-radius: var(--rl) var(--rl) 0 0 }
 .tw.sec-collapsed .thb { border-radius: var(--rl) }
+
+/* ── Sector performance card % colors ─────────────────────────
+   Positive: #2E6F40 (dark forest green)  Negative: #FF2C2C (vivid red)
+   Applied only to sector card % values, not the full table
+──────────────────────────────────────────────────────────────── */
+.scard-ch.g { color: #2E6F40 }
+.scard-ch.r { color: #FF2C2C }
+.spct.g     { color: #2E6F40 }
+.spct.r     { color: #FF2C2C }
+
+/* ── Auto-refresh toggle ───────────────────────────────────────── */
+.ar-tog {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bg-card); border: 1px solid var(--border-hi);
+  border-radius: 6px; padding: 4px 10px;
+  cursor: pointer; font-family: var(--fn); font-size: 11px;
+  font-weight: 600; color: var(--text-sec);
+  letter-spacing: .04em; transition: all .2s; white-space: nowrap; line-height: 1.4;
+}
+.ar-tog:hover { border-color: var(--acc); color: var(--acc) }
+.ar-tog.on  { border-color: var(--green); color: var(--green); background: rgba(0,232,122,.08) }
+.ar-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--text-muted); flex-shrink: 0;
+  transition: background .2s, box-shadow .2s;
+}
+.ar-tog.on .ar-dot {
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse 2s infinite;
+}
 </style>
 </head>
 <body>
@@ -615,7 +646,10 @@ body.lm tbody tr:hover{background:#e8e4da}
         <div class="hdr-clk" id="clk">--:--:-- IST</div>
         <div class="hdr-ref">
           <div style="margin-bottom:4px">Updated: <span id="upd">—</span></div>
-          <button id="ref-btn" class="ref-btn" onclick="manualRef()"><span id="ref-ic">↻</span> Refresh</button>
+          <button class="ar-tog on" id="ar-btn" onclick="toggleAutoRefresh()" title="Auto-refresh every 15 min">
+            <span class="ar-dot" id="ar-dot"></span>
+            <span id="ar-lb">Auto</span>
+          </button>
         </div>
         <button class="thm-tog" onclick="toggleTheme()">
           <span id="thm-ic">🌙</span>
@@ -649,8 +683,8 @@ body.lm tbody tr:hover{background:#e8e4da}
     <th>#</th><th data-col="name" data-t="ai">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="ai">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="ai">Sector <span class="sa">↕</span></th>
     <th data-col="price" class="num" data-t="ai">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="ai">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="ai">Chg % <span class="sa">↓</span></th>
     <th data-col="high" class="num" data-t="ai">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="ai">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="ai">Volume <span class="sa">↕</span></th>
-    <th data-col="market_cap" class="num" data-t="ai">Mkt Cap <span class="sa">↕</span></th><th data-col="week52_high" class="num" data-t="ai">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="ai">52W Lo <span class="sa">↕</span></th><th>7D</th>
-  </tr></thead><tbody id="tb-ai"><tr><td colspan="14"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
+    <th data-col="week52_high" class="num" data-t="ai">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="ai">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-ai"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
   <div class="sh">Sector Performance</div><div class="srow"><div class="sgrid" id="sg-ai"></div></div>
   <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Sector <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Sector × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-ai"><thead><tr>
@@ -683,8 +717,8 @@ body.lm tbody tr:hover{background:#e8e4da}
     <th>#</th><th data-col="name" data-t="ev">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="ev">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="ev">Segment <span class="sa">↕</span></th>
     <th data-col="price" class="num" data-t="ev">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="ev">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="ev">Chg % <span class="sa">↓</span></th>
     <th data-col="high" class="num" data-t="ev">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="ev">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="ev">Volume <span class="sa">↕</span></th>
-    <th data-col="market_cap" class="num" data-t="ev">Mkt Cap <span class="sa">↕</span></th><th data-col="week52_high" class="num" data-t="ev">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="ev">52W Lo <span class="sa">↕</span></th><th>7D</th>
-  </tr></thead><tbody id="tb-ev"><tr><td colspan="14"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
+    <th data-col="week52_high" class="num" data-t="ev">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="ev">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-ev"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
   <div class="sh">Segment Performance</div><div class="srow"><div class="sgrid" id="sg-ev"></div></div>
   <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Segment <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Segment × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-ev"><thead><tr>
@@ -717,8 +751,8 @@ body.lm tbody tr:hover{background:#e8e4da}
     <th>#</th><th data-col="name" data-t="en">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="en">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="en">Sector <span class="sa">↕</span></th>
     <th data-col="price" class="num" data-t="en">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="en">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="en">Chg % <span class="sa">↓</span></th>
     <th data-col="high" class="num" data-t="en">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="en">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="en">Volume <span class="sa">↕</span></th>
-    <th data-col="market_cap" class="num" data-t="en">Mkt Cap <span class="sa">↕</span></th><th data-col="week52_high" class="num" data-t="en">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="en">52W Lo <span class="sa">↕</span></th><th>7D</th>
-  </tr></thead><tbody id="tb-en"><tr><td colspan="14"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
+    <th data-col="week52_high" class="num" data-t="en">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="en">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-en"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
   <div class="sh">Sector Performance</div><div class="srow"><div class="sgrid" id="sg-en"></div></div>
   <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Sector <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Sector × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-en"><thead><tr>
@@ -751,8 +785,8 @@ body.lm tbody tr:hover{background:#e8e4da}
     <th>#</th><th data-col="name" data-t="defence">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="defence">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="defence">Sub-Sector <span class="sa">↕</span></th>
     <th data-col="price" class="num" data-t="defence">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="defence">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="defence">Chg % <span class="sa">↓</span></th>
     <th data-col="high" class="num" data-t="defence">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="defence">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="defence">Volume <span class="sa">↕</span></th>
-    <th data-col="market_cap" class="num" data-t="defence">Mkt Cap <span class="sa">↕</span></th><th data-col="week52_high" class="num" data-t="defence">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="defence">52W Lo <span class="sa">↕</span></th><th>7D</th>
-  </tr></thead><tbody id="tb-defence"><tr><td colspan="14"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
+    <th data-col="week52_high" class="num" data-t="defence">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="defence">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-defence"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
   <div class="sh">Sub-Sector Performance</div><div class="srow"><div class="sgrid" id="sg-defence"></div></div>
   <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Sub-Sector <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Sub-Sector × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-defence"><thead><tr>
@@ -785,8 +819,8 @@ body.lm tbody tr:hover{background:#e8e4da}
     <th>#</th><th data-col="name" data-t="pharma">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="pharma">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="pharma">Segment <span class="sa">↕</span></th>
     <th data-col="price" class="num" data-t="pharma">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="pharma">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="pharma">Chg % <span class="sa">↓</span></th>
     <th data-col="high" class="num" data-t="pharma">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="pharma">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="pharma">Volume <span class="sa">↕</span></th>
-    <th data-col="market_cap" class="num" data-t="pharma">Mkt Cap <span class="sa">↕</span></th><th data-col="week52_high" class="num" data-t="pharma">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="pharma">52W Lo <span class="sa">↕</span></th><th>7D</th>
-  </tr></thead><tbody id="tb-pharma"><tr><td colspan="14"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:90%"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:95%"></div></td></tr></tbody></table></div></div>
+    <th data-col="week52_high" class="num" data-t="pharma">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="pharma">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-pharma"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:95%"></div></td></tr></tbody></table></div></div>
   <div class="sh">Segment Performance</div><div class="srow"><div class="sgrid" id="sg-pharma"></div></div>
   <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Segment <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Segment × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-pharma"><thead><tr>
@@ -818,8 +852,8 @@ body.lm tbody tr:hover{background:#e8e4da}
     <th>#</th><th data-col="name" data-t="bh">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="bh">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="bh">Group <span class="sa">↕</span></th>
     <th data-col="price" class="num" data-t="bh">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="bh">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="bh">Chg % <span class="sa">↓</span></th>
     <th data-col="high" class="num" data-t="bh">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="bh">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="bh">Volume <span class="sa">↕</span></th>
-    <th data-col="market_cap" class="num" data-t="bh">Mkt Cap <span class="sa">↕</span></th><th data-col="week52_high" class="num" data-t="bh">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="bh">52W Lo <span class="sa">↕</span></th><th>7D</th>
-  </tr></thead><tbody id="tb-bh"><tr><td colspan="14"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:90%"></div></td></tr><tr><td colspan="14"><div class="sk" style="width:95%"></div></td></tr></tbody></table></div></div>
+    <th data-col="week52_high" class="num" data-t="bh">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="bh">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-bh"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:95%"></div></td></tr></tbody></table></div></div>
   <div class="sh">Group Performance</div><div class="srow"><div class="sgrid" id="sg-bh"></div></div>
   <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Group <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Group × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-bh"><thead><tr>
@@ -1083,7 +1117,6 @@ function renderTable(t){
       <td class="num mu">${fC(x.high)}</td>
       <td class="num mu">${fC(x.low)}</td>
       <td class="num mu">${fV(x.volume)}</td>
-      <td class="num mu">${fM(x.market_cap)}</td>
       <td class="num mu">${fC(x.week52_high)}</td>
       <td class="num mu">${fC(x.week52_low)}</td>
       <td>${sp}</td>
@@ -1394,15 +1427,74 @@ async function startBgPrefetch(activeTracker){
   _bgRunning = false;
 }
 
-/* ── MANUAL REFRESH ──────────────────────────────────────────── */
-async function manualRef(){
-  const btn=document.getElementById('ref-btn'),ic=document.getElementById('ref-ic');
-  if(btn.disabled) return;
-  btn.disabled=true; ic.style.animation='spin .7s linear infinite'; btn.style.opacity='.65';
-  // Only reload the active tracker; background cache will refresh on its own TTL
-  S[curT].loaded=false;
-  try{ await loadT(curT); }
-  finally{ ic.style.animation=''; btn.disabled=false; btn.style.opacity=''; }
+/* ── AUTO-REFRESH ─────────────────────────────────────────────────────────
+   • Default ON — refreshes all trackers sequentially every 15 minutes
+   • Sequential (not parallel) to stay within yfinance rate limits
+   • Each tracker gets a full reload: quotes + sparklines → heatmap + screener
+   • Toggle persisted to localStorage
+   • 'Updated' timestamp in header reflects last completed cycle
+─────────────────────────────────────────────────────────────────────────── */
+const AR_INTERVAL   = 15 * 60 * 1000;   // 15 minutes in ms
+const AR_STAGGER    = 10 * 1000;         // 10 s gap between trackers in cycle
+let   _arTimer      = null;
+let   _arRunning    = false;
+let   _arEnabled    = true;              // default ON
+
+function setArUI(on) {
+  const btn = document.getElementById('ar-btn');
+  const lb  = document.getElementById('ar-lb');
+  if (!btn) return;
+  btn.classList.toggle('on', on);
+  lb.textContent = on ? 'Auto' : 'Manual';
+  btn.title = on ? 'Auto-refresh ON — every 15 min. Click to pause.'
+                 : 'Auto-refresh OFF. Click to resume.';
+}
+
+async function runRefreshCycle() {
+  if (_arRunning) return;
+  _arRunning = true;
+  const ALL = Object.keys(CFG);   // all 6 trackers in declaration order
+  for (const t of ALL) {
+    if (!_arEnabled) break;        // user toggled off mid-cycle — stop
+    S[t].loaded = false;
+    await loadT(t);
+    if (ALL.indexOf(t) < ALL.length - 1) {
+      await sleep(AR_STAGGER);     // 10 s gap between trackers
+    }
+  }
+  _arRunning = false;
+  // schedule next cycle only if still enabled
+  if (_arEnabled) {
+    _arTimer = setTimeout(runRefreshCycle, AR_INTERVAL);
+  }
+}
+
+function startAutoRefresh() {
+  if (_arTimer) clearTimeout(_arTimer);
+  _arTimer = setTimeout(runRefreshCycle, AR_INTERVAL);
+  setArUI(true);
+}
+
+function stopAutoRefresh() {
+  if (_arTimer) { clearTimeout(_arTimer); _arTimer = null; }
+  setArUI(false);
+}
+
+function toggleAutoRefresh() {
+  _arEnabled = !_arEnabled;
+  localStorage.setItem('autoRefresh', _arEnabled ? '1' : '0');
+  if (_arEnabled) {
+    startAutoRefresh();
+  } else {
+    stopAutoRefresh();
+  }
+}
+
+// Keep manualRef as an alias used nowhere in UI but guards against any
+// stale onclick refs
+async function manualRef() {
+  S[curT].loaded = false;
+  await loadT(curT);
 }
 
 /* ── SIDEBAR ─────────────────────────────────────────────────── */
@@ -1430,8 +1522,18 @@ function toggleTheme(){
     document.getElementById('thm-lb').textContent='Light';
   }
   setAccent('ai');
+
+  // Restore auto-refresh preference (default ON)
+  const arSaved = localStorage.getItem('autoRefresh');
+  _arEnabled = arSaved === null || arSaved === '1';
+  setArUI(_arEnabled);
+
   // Load active tracker immediately, then kick off background prefetch
-  loadT('ai').then(() => startBgPrefetch('ai'));
+  loadT('ai').then(() => {
+    startBgPrefetch('ai');
+    // Start auto-refresh timer after initial load completes
+    if (_arEnabled) startAutoRefresh();
+  });
 })();
 /* ═══ COLLAPSIBLE SECTIONS ════════════════════════════════════════════════ */
 (function initCollapsibles() {
