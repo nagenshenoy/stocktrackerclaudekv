@@ -78,8 +78,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 #sb.col .sb-tog-lb{opacity:0;width:0}
 
 /* ═══ MAIN WRAP ════════════════════════════════════════════ */
-#mw{margin-left:var(--sw);width:calc(100vw - var(--sw));max-width:calc(100vw - var(--sw));min-width:0;flex:0 0 calc(100vw - var(--sw));min-height:100vh;display:flex;flex-direction:column;transition:margin-left .25s cubic-bezier(.4,0,.2,1),width .25s cubic-bezier(.4,0,.2,1),max-width .25s cubic-bezier(.4,0,.2,1),flex-basis .25s cubic-bezier(.4,0,.2,1);position:relative;z-index:1;overflow-x:hidden}
-#mw.col{margin-left:var(--sc);width:calc(100vw - var(--sc));max-width:calc(100vw - var(--sc));flex-basis:calc(100vw - var(--sc))}
+#mw{margin-left:var(--sw);flex:1;min-height:100vh;display:flex;flex-direction:column;transition:margin-left .25s cubic-bezier(.4,0,.2,1);position:relative;z-index:1}
+#mw.col{margin-left:var(--sc)}
 
 /* ═══ HEADER ═══════════════════════════════════════════════ */
 #hdr{position:sticky;top:0;z-index:100;background:rgba(7,7,13,.94);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 24px}
@@ -205,7 +205,7 @@ td.mu{color:var(--text-sec);font-weight:500}
 .hmw-s{font-family:var(--fn);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted)}
 .hm-box{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
 .hm-sc{overflow-x:auto}
-.hm-t{width:100%;border-collapse:collapse;font-family:var(--fn);font-size:12px;min-width:700px}
+.hm-t{width:100%;border-collapse:collapse;font-family:var(--fn);font-size:12px}
 .hm-t thead tr{background:var(--bg-secondary);border-bottom:2px solid var(--border-hi)}
 .hm-t thead th{padding:10px 16px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);white-space:nowrap;user-select:none;cursor:pointer;transition:color .15s}
 .hm-t thead th:first-child{text-align:left;min-width:220px}
@@ -243,7 +243,7 @@ td.hmv{padding:5px 6px}
 .scr-cnt{font-family:var(--fn);font-size:11px;color:var(--text-muted)}
 .scr-box{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
 .scr-sc{overflow-x:auto}
-.scr-tbl{width:100%;border-collapse:collapse;font-family:var(--fn);font-size:12px;min-width:860px}
+.scr-tbl{width:100%;border-collapse:collapse;font-family:var(--fn);font-size:12px}
 .scr-tbl thead tr{background:var(--bg-secondary);border-bottom:1px solid var(--border-hi)}
 .scr-tbl thead th{padding:10px 12px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);white-space:nowrap;user-select:none;cursor:pointer;transition:color .15s;border-right:1px solid var(--border)}
 .scr-tbl thead th:last-child{border-right:none}
@@ -343,7 +343,7 @@ body.lm tbody tr:hover{background:#e8e4da}
 @media(max-width:900px){
   #sb{width:var(--sc)}
   #sb .ni-lb,#sb .ni-bd,#sb .sb-logo-text,#sb .sb-logo-sub,#sb .sb-sec,#sb .sb-tog-lb{opacity:0;width:0}
-  #mw{margin-left:var(--sc);width:calc(100vw - var(--sc));max-width:calc(100vw - var(--sc));flex-basis:calc(100vw - var(--sc))}
+  #mw{margin-left:var(--sc)}
 }
 @media(max-width:768px){
   .ctn{padding:12px 16px 32px}
@@ -485,71 +485,93 @@ body.lm tbody tr:hover{background:#e8e4da}
 /* Sector tab: tooltip via title attribute (set by JS) */
 .st[title] { cursor: pointer }
 
-/* ── Layout overflow fixes (all trackers) ─────────────────────────
-   Root causes:
-   1. .tw / .hm-box / .scr-box all had overflow:hidden which killed
-      the horizontal scroll of their .tsc / .hm-sc / .scr-sc children.
-      Fix: switch to overflow:clip so border-radius is preserved but
-      scrollable children are no longer clipped.
-   2. Header switcher (.tsw) has no overflow handling with 6 buttons.
-      Fix: allow flex-wrap + shrink padding at narrow widths.
-   3. Stock table inside .tsc had no explicit min-width, so columns
-      compressed instead of triggering the scroll container.
+
+/* ── Responsive layout — all trackers (BH-aware) ────────────────
+   body has overflow-x:hidden so NO horizontal scroll is possible.
+   Every section must FIT within the available content width.
+   Content width = viewport − sidebar(232px expanded / 60px collapsed) − padding(48px)
+   Critical breakpoint: 1280px → ~1000px content
+   Safe breakpoint:     1024px → ~716px content (sidebar collapsed)
 ──────────────────────────────────────────────────────────────────── */
 
-/* Fix 1a — stock table card: switch from overflow:hidden to clip */
-.tw {
-  overflow: clip;           /* preserves border-radius, allows child scroll */
-  overflow-clip-margin: 0;
-}
-/* Fix 1b — tsc needs explicit min-height so collapsed state still clips */
-.tsc { min-height: 0 }
+/* ── Stock table: make it fully fluid ── */
+.tsc table { table-layout: fixed; width: 100% }
+.tsc table thead th,
+.tsc table tbody td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
 
-/* Fix 2a — heatmap box: same treatment */
-.hm-box { overflow: clip; overflow-clip-margin: 0 }
+/* Column widths — proportional, sum = 100% */
+.tsc table th:nth-child(1)  { width: 3% }   /* # */
+.tsc table th:nth-child(2)  { width: 18% }  /* Company */
+.tsc table th:nth-child(3)  { width: 8% }   /* Ticker */
+.tsc table th:nth-child(4)  { width: 10% }  /* Sector/Group */
+.tsc table th:nth-child(5)  { width: 8% }   /* Price */
+.tsc table th:nth-child(6)  { width: 7% }   /* Chg ₹ */
+.tsc table th:nth-child(7)  { width: 7% }   /* Chg % */
+.tsc table th:nth-child(8)  { width: 7% }   /* Day Hi */
+.tsc table th:nth-child(9)  { width: 7% }   /* Day Lo */
+.tsc table th:nth-child(10) { width: 7% }   /* Volume */
+.tsc table th:nth-child(11) { width: 8% }   /* Mkt Cap */
+.tsc table th:nth-child(12) { width: 5% }   /* 52W Hi */
+.tsc table th:nth-child(13) { width: 5% }   /* 52W Lo */
+.tsc table th:nth-child(14) { width: 5% }   /* 7D */
 
-/* Fix 2b — screener box: same treatment */
-.scr-box { overflow: clip; overflow-clip-margin: 0 }
-
-/* Fix 3 — stock table explicit min-width so columns don't compress */
-.tsc > table { min-width: 900px }
-
-/* Fix 4 — header switcher: wrap gracefully at narrow widths */
-.tsw {
-  flex-wrap: wrap;
-  border-radius: 12px;
-  max-width: 360px;
-}
-.tbtn { padding: 3px 8px; font-size: 9.5px; letter-spacing: .03em }
-
-/* Fix 4b — at very narrow widths hide switcher (sidebar handles nav) */
-@media (max-width: 860px) { .tsw { display: none } }
-
-/* Fix 5 — hdr-meta: prevent overflow on narrow viewports */
-.hdr-meta { flex-wrap: wrap; row-gap: 4px; overflow: visible }
-
-/* Fix 6 — ensure hm-sc and scr-sc are proper scroll containers */
-.hm-sc  { overflow-x: auto; overflow-y: visible }
-.scr-sc { overflow-x: auto; overflow-y: visible }
-
-/* Fix 7 — srow (sector perf cards): ensure it scrolls, not clips */
-.srow { overflow-x: auto; overflow-y: visible }
-
-/* Fix 8 — prevent content cards from enlarging the page width.
-   Wide tables should scroll inside their own cards, not push #mw beyond viewport. */
-.ctn,.tp,.tw,.tsc,.hmw,.hm-box,.hm-sc,.scrw,.scr-box,.scr-sc,.srow{min-width:0;max-width:100%}
-.tsc,.hm-sc,.scr-sc{display:block;width:100%;max-width:100%;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
-#tp-bh .tsc > table{min-width:1040px}
-#tp-bh .cn{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#tp-bh .sp{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
-
-@media (max-width: 760px){
-  #mw,#mw.col{margin-left:var(--sc);width:calc(100vw - var(--sc));max-width:calc(100vw - var(--sc));flex-basis:calc(100vw - var(--sc))}
-  #hdr{padding:0 12px}
-  .ctn{padding:14px 12px 28px}
-  .thb,.hmw-hd,.scr-hd{padding-left:12px;padding-right:12px}
+/* At ≤1150px: hide 52W Hi, 52W Lo, Day Hi, Day Lo */
+@media (max-width: 1150px) {
+  .tsc table th:nth-child(8),  .tsc table td:nth-child(8),
+  .tsc table th:nth-child(9),  .tsc table td:nth-child(9),
+  .tsc table th:nth-child(12), .tsc table td:nth-child(12),
+  .tsc table th:nth-child(13), .tsc table td:nth-child(13) { display: none }
+  .tsc table th:nth-child(2)  { width: 22% }
+  .tsc table th:nth-child(4)  { width: 13% }
 }
 
+/* At ≤860px: also hide Volume, Chg ₹, sparkline */
+@media (max-width: 860px) {
+  .tsc table th:nth-child(6),  .tsc table td:nth-child(6),
+  .tsc table th:nth-child(10), .tsc table td:nth-child(10),
+  .tsc table th:nth-child(14), .tsc table td:nth-child(14) { display: none }
+  .tsc table th:nth-child(2)  { width: 28% }
+  .tsc table th:nth-child(4)  { width: 15% }
+}
+
+/* ── Heatmap: fluid, no min-width ── */
+.hm-t { width: 100% }
+.hm-t thead th:first-child,
+.hm-t tbody td:first-child { width: 40% }
+.hm-t thead th:not(:first-child),
+.hm-t tbody td:not(:first-child) { width: 15% }
+.hm-sc-nm { max-width: none; width: 100%; display: block }
+
+/* ── Screener: fluid, no min-width ── */
+.scr-tbl { width: 100% }
+.scr-tbl th:nth-child(1) { width: 8% }   /* Ticker */
+.scr-tbl th:nth-child(2) { width: 22% }  /* Company */
+.scr-tbl th:nth-child(3) { width: 16% }  /* Sector/Group */
+.scr-tbl th:nth-child(4) { width: 10% }  /* Price */
+.scr-tbl th:nth-child(5),
+.scr-tbl th:nth-child(6),
+.scr-tbl th:nth-child(7),
+.scr-tbl th:nth-child(8) { width: 11% }  /* Return cols */
+
+/* At ≤860px: hide 1W% from screener */
+@media (max-width: 860px) {
+  .scr-tbl th:nth-child(6), .scr-tbl td:nth-child(6) { display: none }
+  .scr-tbl th:nth-child(2) { width: 26% }
+}
+
+/* ── Header switcher: compact at mid widths ── */
+@media (max-width: 1100px) {
+  .tbtn { padding: 3px 7px; font-size: 9.5px; letter-spacing: .03em }
+}
+@media (max-width: 860px) {
+  .tsw { display: none }   /* sidebar handles nav at narrow widths */
+}
+
+/* ── Company name in table: allow 2 lines at narrow widths ── */
+.cn { white-space: normal; word-break: break-word; line-height: 1.3 }
+@media (min-width: 861px) {
+  .cn { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+}
 </style>
 </head>
 <body>
