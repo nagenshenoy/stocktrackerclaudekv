@@ -754,10 +754,8 @@ body.lm .tracker-pane[data-pane="nse"] .sec-nav{
           <button class="tbtn"    data-t="bh"      onclick="switchT('bh',null)">🏛 BH</button>
           <button class="tbtn"    data-t="pli"     onclick="switchT('pli',null)">🏭 PLI</button>
         </div>
-        <div class="mkt-st"><div class="mkt-dot" id="mkt-dot"></div><span id="mkt-lb">NSE</span></div>
-        <div class="hdr-clk" id="clk">--:--:-- IST</div>
-        <div class="hdr-ref">
-          <div style="margin-bottom:4px">Updated: <span id="upd">—</span></div>
+        <div class="hdr-ref last-updated-box">
+          <div class="last-updated-label">Last Updated: <span id="upd">—</span></div>
           <button id="auto-ref" class="auto-ref" onclick="toggleAutoRefresh()" aria-pressed="false" title="Auto refreshes all trackers every 15 minutes when On">
             <span id="auto-ref-lb">Auto Refresh On</span>
             <div class="tog-trk"><div class="tog-th"></div></div>
@@ -1168,12 +1166,17 @@ function marketOpen(){
   return d.getDay()>=1&&d.getDay()<=5&&m>=555&&m<=930;
 }
 function tick(){
-  const d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));
-  const p=n=>String(n).padStart(2,'0');
-  document.getElementById('clk').textContent=`${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())} IST`;
   const o=marketOpen();
-  document.getElementById('mkt-lb').textContent   =o?'NSE OPEN':'NSE CLOSED';
-  document.getElementById('mkt-dot').className    ='mkt-dot'+(o?'':' off');
+  const clk=document.getElementById('clk');
+  if(clk){
+    const d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));
+    const p=n=>String(n).padStart(2,'0');
+    clk.textContent=`${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())} IST`;
+  }
+  const mktLb=document.getElementById('mkt-lb');
+  const mktDot=document.getElementById('mkt-dot');
+  if(mktLb) mktLb.textContent=o?'NSE OPEN':'NSE CLOSED';
+  if(mktDot) mktDot.className='mkt-dot'+(o?'':' off');
   document.getElementById('sb-mkt-ic').textContent=o?'🟢':'🔴';
   document.getElementById('sb-mkt-lb').textContent=o?'NSE OPEN':'NSE CLOSED';
 }
@@ -1496,7 +1499,7 @@ async function loadT(t){
   S[t].loading=true;
   await Promise.all([fetchQ(t), fetchSpark(t)]);
   const ts=new Date().toLocaleString('en-IN',{
-    timeZone:'Asia/Kolkata',hour:'2-digit',minute:'2-digit',second:'2-digit'
+    timeZone:'Asia/Kolkata',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'
   });
   document.getElementById('upd').textContent=ts;
   document.getElementById('fref').textContent=ts;
@@ -1857,5 +1860,74 @@ window.addEventListener('load', refreshTrackerFixedOffsets);
 }
 @media(max-width:1040px){
   #hdr .tsw{display:none !important;}
+}
+</style>
+
+
+<!-- Segment wrap + header last-updated hotfix -->
+<style>
+/* Wrap Segment Performance cards to the available dashboard width instead of forcing horizontal scroll */
+.srow{
+  overflow-x:visible !important;
+  overflow-y:visible !important;
+  width:100% !important;
+  max-width:100% !important;
+  padding-bottom:0 !important;
+}
+.sgrid{
+  display:grid !important;
+  grid-template-columns:repeat(auto-fit,minmax(185px,1fr)) !important;
+  gap:10px !important;
+  min-width:0 !important;
+  width:100% !important;
+}
+.scard{
+  width:auto !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  flex:initial !important;
+}
+.scard-nm,.stk{
+  min-width:0 !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+}
+/* Header: remove NSE open/closed clock from the main header and show auto-refresh timestamp */
+#hdr .last-updated-box{
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  margin:0 !important;
+  white-space:nowrap !important;
+}
+#hdr .last-updated-label{
+  display:inline-flex !important;
+  align-items:center !important;
+  height:28px !important;
+  padding:0 10px !important;
+  border:1px solid var(--border-hi) !important;
+  border-radius:100px !important;
+  background:var(--bg-card) !important;
+  color:var(--text-sec) !important;
+  font-size:10px !important;
+  font-weight:700 !important;
+  letter-spacing:.035em !important;
+}
+#hdr .last-updated-label #upd{
+  color:var(--acc) !important;
+  margin-left:4px !important;
+}
+#hdr .hdr-ref > div:first-child{
+  display:inline-flex !important;
+}
+@media(max-width:1180px){
+  #hdr .last-updated-label{font-size:9px !important;padding:0 8px !important;}
+}
+@media(max-width:980px){
+  #hdr .last-updated-label{display:none !important;}
+}
+@media(max-width:700px){
+  .sgrid{grid-template-columns:1fr !important;}
 }
 </style>
