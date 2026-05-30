@@ -575,6 +575,54 @@ body.lm tbody tr:hover{background:#e8e4da}
   .thb,.hmw-hd,.scr-hd{padding-left:12px;padding-right:12px}
 }
 
+
+/* ── Header alignment fix after PLI integration ─────────────────────
+   Keeps tracker chips, market status, auto-refresh and theme toggle
+   inside the fixed header instead of wrapping below the header line. */
+#mw{padding-top:78px}
+#hdr{min-height:76px;padding:0 18px}
+.hdr-in{min-height:76px;height:auto;align-items:center;gap:14px}
+.brand{min-width:235px;max-width:360px;flex:1 1 260px;overflow:hidden}
+.brand-t,.brand-s{overflow:hidden;text-overflow:ellipsis}
+.hdr-meta{display:flex;align-items:center;justify-content:flex-end;gap:7px 8px;flex:1 1 auto;min-width:0;max-width:100%;flex-wrap:wrap;margin-left:8px}
+.hdr-meta .tsw{order:2;flex:1 1 100%;max-width:100%;min-width:0;display:flex;flex-wrap:nowrap;justify-content:flex-end;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding:3px}
+.hdr-meta .tsw::-webkit-scrollbar{display:none}
+.hdr-meta .mkt-st,.hdr-meta .hdr-clk,.hdr-meta .hdr-ref,.hdr-meta .thm-tog{order:1;flex:0 0 auto}
+.hdr-ref{display:flex;align-items:center;gap:8px;text-align:left;white-space:nowrap}
+.hdr-ref>div{margin-bottom:0!important}
+.tbtn{padding:4px 8px;font-size:9.5px;flex:0 0 auto}
+.auto-ref,.thm-tog{padding-top:4px;padding-bottom:4px}
+
+@media (min-width: 1280px){
+  #mw{padding-top:66px}
+  #hdr{min-height:64px}
+  .hdr-in{min-height:64px}
+  .hdr-meta{flex-wrap:nowrap}
+  .hdr-meta .tsw{order:1;flex:0 1 465px;max-width:465px;justify-content:center}
+  .hdr-meta .mkt-st,.hdr-meta .hdr-clk,.hdr-meta .hdr-ref,.hdr-meta .thm-tog{order:2}
+  .brand{max-width:330px}
+  .tbtn{padding:4px 7px;font-size:9.3px}
+  .hdr-ref>div{display:none}
+}
+
+@media (max-width: 980px){
+  #mw{padding-top:96px}
+  #hdr{min-height:94px}
+  .hdr-in{min-height:94px;align-items:flex-start;padding-top:8px;padding-bottom:8px;flex-direction:column;gap:6px}
+  .brand{max-width:100%;width:100%}
+  .hdr-meta{width:100%;margin-left:0;justify-content:flex-start}
+  .hdr-meta .tsw{justify-content:flex-start}
+}
+
+@media (max-width: 760px){
+  #mw,#mw.col{padding-top:106px}
+  #hdr,#mw.col #hdr{min-height:104px;padding:0 10px}
+  .hdr-in{min-height:104px}
+  .hdr-clk{display:none}
+  #auto-ref-lb{display:none}
+  .thm-tog #thm-lb{display:none}
+}
+
 </style>
 </head>
 <body>
