@@ -73,3 +73,25 @@ The alias `en` maps to `energy` internally.
 | `GET /api/health` | Service health + stock counts per tracker |
 
 > Data via Yahoo Finance (~15 min delayed). Not investment advice.
+
+## PLI Tracker Integration
+
+This package includes an integrated **India PLI Stock Tracker** in the same dashboard architecture as the existing trackers.
+
+- Ticker universe is loaded from `data/PLI.json`.
+- Sidebar and top tracker chips include `PLI`.
+- PLI uses the shared Flask API endpoints:
+  - `/api/quotes?tracker=pli`
+  - `/api/sparklines?tracker=pli`
+  - `/api/sector-heatmap?tracker=pli`
+  - `/api/screener?tracker=pli`
+- The tracker inherits the existing static header, fixed KPI cards, internal tabs, auto-refresh every 15 minutes, cache layer, Vercel routing, and Yahoo Finance/yfinance data flow.
+- To add or remove PLI stocks, edit `data/PLI.json` using the format:
+
+```json
+{
+  "Segment Name": {
+    "Company Name": "TICKER.NS"
+  }
+}
+```

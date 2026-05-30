@@ -17,6 +17,25 @@ config = {"maxDuration": 30}
 # Local dev only: Flask serves the frontend when running outside Vercel.
 PUBLIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'public')
 
+
+def load_json_universe(filename, fallback=None):
+    """Load a tracker universe from /data JSON.
+
+    The JSON format is: {"Segment": {"Company": "TICKER.NS"}}.
+    This keeps ticker universes editable without changing backend code.
+    """
+    fallback = fallback or {}
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(base_dir, 'data', filename)
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        if isinstance(data, dict):
+            return data
+    except Exception as exc:
+        print(f"Unable to load {filename}: {exc}")
+    return fallback
+
 @app.route('/')
 def index():
     return send_from_directory(PUBLIC_DIR, 'index.html')
@@ -386,6 +405,13 @@ STOCKS_BH = {
         "Mukand":                "MUKANDLTD.NS",
     },
 }
+STOCKS_PLI = load_json_universe('PLI.json', {
+    'Railway Infrastructure Companies': {
+        'Rail Vikas Nigam': 'RVNL.NS',
+        'Indian Railway Finance Corporation': 'IRFC.NS',
+    }
+})
+
 ALL_STOCKS = {
     "ai":      STOCKS_AI,
     "ev":      STOCKS_EV,
@@ -393,6 +419,7 @@ ALL_STOCKS = {
     "defence": STOCKS_DEFENCE,
     "pharma":  STOCKS_PHARMA,
     "bh":      STOCKS_BH,
+    "pli":     STOCKS_PLI,
 }
 
 # ─── CACHE LAYER ────────────────────────────────────────────────────────
