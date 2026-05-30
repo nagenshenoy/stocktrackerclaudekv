@@ -73,3 +73,10 @@ The alias `en` maps to `energy` internally.
 | `GET /api/health` | Service health + stock counts per tracker |
 
 > Data via Yahoo Finance (~15 min delayed). Not investment advice.
+
+
+## Integrated PLI Tracker
+
+This package integrates the attached India PLI Stock Tracker into the existing Stock Suite architecture. The PLI tracker now uses the shared Flask API endpoints, shared yfinance/cache layer, shared sidebar/header controls, shared KPI strip, and the same tabbed dashboard layout: NSE Universe, Segment Performance, Segment Heatmap, and Screener.
+
+PLI sectors included: Railway Infrastructure, Defence Manufacturing, Electronics Manufacturing, Telecom & Networking, and Automobile & Auto Components.
