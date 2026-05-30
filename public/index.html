@@ -788,6 +788,97 @@ thead th,.hm-t thead th,.scr-tbl thead th{padding-top:14px!important;padding-bot
   .tracker-pane[data-pane="nse"] .sec-nav{top:calc(58px + var(--tracker-fixed-h, 220px))!important}
   .tracker-pane[data-pane="perf"] .scard{max-width:100%;min-width:180px!important}
 }
+
+
+/* ═══ USER REQUEST FIX v3: TRUE FIXED KPI/TABS + TABLE TOP BREATHING ROOM ═══
+   The KPI card strip and tab bar are now fixed under the app header for the
+   active tracker, independent of page scroll. Content is pushed down by the
+   measured fixed strip height so table/card headings are never hidden. */
+.tp.on{
+  padding-top:calc(var(--tracker-fixed-h, 138px) + 18px)!important;
+}
+.tp.on > .tracker-fixed{
+  position:fixed!important;
+  top:58px!important;
+  left:var(--sw)!important;
+  right:0!important;
+  width:auto!important;
+  z-index:190!important;
+  margin:0!important;
+  padding:8px 24px 10px!important;
+  border-bottom:1px solid var(--border)!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.18)!important;
+}
+#mw.col .tp.on > .tracker-fixed{
+  left:var(--sc)!important;
+}
+.tp.on > .tracker-panes{
+  padding-top:0!important;
+}
+/* Keep sector filter chips below the fixed card/tab band without being hidden. */
+.tracker-pane[data-pane="nse"] .sec-nav{
+  position:sticky!important;
+  top:calc(58px + var(--tracker-fixed-h, 138px))!important;
+  z-index:175!important;
+  margin:0 0 18px 0!important;
+  padding:11px 2px 12px!important;
+  background:linear-gradient(180deg,rgba(7,7,13,.99),rgba(7,7,13,.96))!important;
+  border-bottom:1px solid var(--border)!important;
+  backdrop-filter:blur(16px)!important;
+}
+/* More space before every table/card header line across all tabs. */
+.tracker-pane .tw,
+.tracker-pane .hmw,
+.tracker-pane .scrw{
+  margin-top:22px!important;
+}
+.tracker-pane[data-pane="nse"] .tw{
+  margin-top:20px!important;
+}
+.thb{
+  padding-top:22px!important;
+  padding-bottom:16px!important;
+  min-height:54px!important;
+}
+.hmw-hd,
+.scr-hd{
+  padding-top:16px!important;
+  padding-bottom:14px!important;
+  margin-bottom:16px!important;
+  min-height:48px!important;
+}
+thead th,
+.hm-t thead th,
+.scr-tbl thead th{
+  padding-top:16px!important;
+  padding-bottom:14px!important;
+}
+/* Segment performance cards should wrap and stay inside the viewport. */
+.tracker-pane[data-pane="perf"] .srow{
+  overflow:visible!important;
+  padding-top:4px!important;
+}
+.tracker-pane[data-pane="perf"] .sgrid{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr))!important;
+  gap:12px!important;
+  width:100%!important;
+  min-width:0!important;
+}
+.tracker-pane[data-pane="perf"] .scard{
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+}
+body.lm .tracker-pane[data-pane="nse"] .sec-nav{
+  background:linear-gradient(180deg,rgba(237,234,226,.99),rgba(237,234,226,.96))!important;
+}
+@media(max-width:768px){
+  .tp.on > .tracker-fixed{left:var(--sc)!important;padding:8px 12px 10px!important;}
+  .tp.on{padding-top:calc(var(--tracker-fixed-h, 220px) + 16px)!important;}
+  .tracker-pane[data-pane="nse"] .sec-nav{top:calc(58px + var(--tracker-fixed-h, 220px))!important;}
+}
+
 </style>
 </head>
 <body>
