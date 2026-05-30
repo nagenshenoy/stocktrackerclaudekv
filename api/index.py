@@ -386,6 +386,63 @@ STOCKS_BH = {
         "Mukand":                "MUKANDLTD.NS",
     },
 }
+STOCKS_PLI = {
+    "Railway Infrastructure": {
+        "Rail Vikas Nigam": "RVNL.NS",
+        "Indian Railway Finance Corp": "IRFC.NS",
+        "Ircon International": "IRCON.NS",
+        "Texmaco Rail & Engineering": "TEXRAIL.NS",
+        "BEML": "BEML.NS",
+        "Titagarh Rail Systems": "TITAGARH.NS",
+        "IRCTC": "IRCTC.NS",
+        "Container Corp of India": "CONCOR.NS"
+    },
+    "Defence Manufacturing": {
+        "Hindustan Aeronautics": "HAL.NS",
+        "Bharat Electronics": "BEL.NS",
+        "Mazagon Dock Shipbuilders": "MAZDOCK.NS",
+        "Garden Reach Shipbuilders": "GRSE.NS",
+        "Bharat Dynamics": "BDL.NS",
+        "Cochin Shipyard": "COCHINSHIP.NS",
+        "Solar Industries India": "SOLARINDS.NS",
+        "Zen Technologies": "ZENTEC.NS",
+        "Data Patterns (India)": "DATAPATTNS.NS",
+        "Astra Microwave Products": "ASTRAMICRO.NS",
+        "Mishra Dhatu Nigam": "MIDHANI.NS",
+        "MTAR Technologies": "MTARTECH.NS",
+        "Dynamatic Technologies": "DYNAMATECH.NS",
+        "Paras Defence & Space": "PARAS.NS"
+    },
+    "Electronics Manufacturing": {
+        "Dixon Technologies": "DIXON.NS",
+        "Tata Elxsi": "TATAELXSI.NS",
+        "Kaynes Technology India": "KAYNES.NS",
+        "Syrma SGS Technology": "SYRMA.NS",
+        "PG Electroplast": "PGEL.NS",
+        "Centum Electronics": "CENTUM.NS",
+        "Amber Enterprises India": "AMBER.NS",
+        "Avalon Technologies": "AVALON.NS"
+    },
+    "Telecom & Networking": {
+        "Tejas Networks": "TEJASNET.NS",
+        "HFCL": "HFCL.NS",
+        "Sterlite Technologies": "STLTECH.NS",
+        "ITI": "ITI.NS",
+        "Indus Towers": "INDUSTOWER.NS"
+    },
+    "Automobile & Auto Components": {
+        "Tata Motors": "TMPV.NS",
+        "Mahindra & Mahindra": "M&M.NS",
+        "Bajaj Auto": "BAJAJ-AUTO.NS",
+        "TVS Motor Company": "TVSMOTOR.NS",
+        "Maruti Suzuki India": "MARUTI.NS",
+        "Ashok Leyland": "ASHOKLEY.NS",
+        "Bharat Forge": "BHARATFORG.NS",
+        "Bosch": "BOSCHLTD.NS",
+        "Samvardhana Motherson": "MOTHERSON.NS"
+    }
+}
+
 ALL_STOCKS = {
     "ai":      STOCKS_AI,
     "ev":      STOCKS_EV,
@@ -393,6 +450,7 @@ ALL_STOCKS = {
     "defence": STOCKS_DEFENCE,
     "pharma":  STOCKS_PHARMA,
     "bh":      STOCKS_BH,
+    "pli":     STOCKS_PLI,
 }
 
 # ─── CACHE LAYER ────────────────────────────────────────────────────────

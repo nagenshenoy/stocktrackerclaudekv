@@ -1,18 +1,20 @@
 # India Stock Tracker Suite
 
-Unified NSE/BSE dashboard — five sector trackers in one single-page app with
-collapsible sidebar navigation, lazy loading, dark/light theme, and full
-Vercel-ready deployment.
+Unified NSE/BSE dashboard — seven sector/theme trackers in one single-page app with
+collapsible sidebar navigation, fixed header, lazy/background loading, dark/light theme,
+15-minute auto-refresh, and full Vercel-ready deployment.
 
 ## Trackers
 
 | # | Tracker | Accent | Stocks | Exchange |
 |---|---------|--------|--------|----------|
-| 1 | 🤖 AI & Data Center | Cyan `#00d4ff` | 30 | NSE |
+| 1 | 🤖 AI & Data Center | Cyan `#00d4ff` | 33 | NSE |
 | 2 | ⚡ EV Stocks | Green `#00e87a` | 23 | NSE |
-| 3 | 🛢 Energy Stocks | Amber `#ffb347` | 45 | NSE |
+| 3 | 🛢 Energy Stocks | Amber `#ffb347` | 49 | NSE |
 | 4 | 🛡 Defence & Aerospace | Violet `#c084fc` | 29 | NSE / BSE |
 | 5 | 💊 Pharma & Biotech | Rose `#f472b6` | 39 | NSE |
+| 6 | 🏛 Business Houses | Orange `#f59e0b` | 91 | NSE |
+| 7 | 🏭 PLI Sectors | Teal `#14b8a6` | 44 | NSE |
 
 ## Features
 
@@ -26,7 +28,9 @@ Vercel-ready deployment.
 - **Multi-period screener** — colour-coded return table, sortable
 - **Stock detail modal** — 1D / 5D / 1M / 3M / 1Y price chart, key metrics, NSE link
 - **Dark / Light theme** — persisted via localStorage
-- **Lazy loading** — each tracker fetches data only on first visit; 60 s cache
+- **Lazy/background loading** — active tracker loads first; remaining trackers prefetch sequentially
+- **Auto refresh** — default On; all trackers refresh every 15 minutes sequentially
+- **Responsive dashboard architecture** — fixed top header, scroll-safe cards, table overflow containment
 - **IST clock + market status** — NSE open/closed indicator
 
 ## Project Structure
@@ -34,7 +38,7 @@ Vercel-ready deployment.
 ```
 integrated-tracker/
 ├── api/
-│   └── index.py       # Unified Flask API — all 5 trackers via ?tracker=
+│   └── index.py       # Unified Flask API — all 7 trackers via ?tracker=
 ├── public/
 │   └── index.html     # Complete single-page application
 ├── requirements.txt
@@ -60,7 +64,7 @@ vercel --prod
 
 ## API Endpoints
 
-All endpoints accept `?tracker=ai|ev|en|defence|pharma` (default: `ai`).
+All endpoints accept `?tracker=ai|ev|en|defence|pharma|bh|pli` (default: `ai`).
 The alias `en` maps to `energy` internally.
 
 | Endpoint | Description |

@@ -33,6 +33,7 @@
   --df-acc: #c084fc; --df-dim: rgba(192,132,252,.14); --df-bd: rgba(192,132,252,.30);
   --ph-acc: #f472b6; --ph-dim: rgba(244,114,182,.14); --ph-bd: rgba(244,114,182,.30);
   --bh-acc: #f59e0b; --bh-dim: rgba(245,158,11,.14);  --bh-bd: rgba(245,158,11,.30);
+  --pli-acc:#14b8a6; --pli-dim:rgba(20,184,166,.14); --pli-bd:rgba(20,184,166,.30);
   --sw: 232px;
   --sc: 60px;
   --fn: 'JetBrains Mono','Fira Code',monospace;
@@ -65,6 +66,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .ni.on[data-t="defence"]{background:var(--df-dim);border-color:var(--df-acc);color:var(--df-acc)}
 .ni.on[data-t="pharma"] {background:var(--ph-dim);border-color:var(--ph-acc);color:var(--ph-acc)}
 .ni.on[data-t="bh"]     {background:var(--bh-dim);border-color:var(--bh-acc);color:var(--bh-acc)}
+.ni.on[data-t="pli"]    {background:var(--pli-dim);border-color:var(--pli-acc);color:var(--pli-acc)}
 .ni-ic{font-size:16px;flex-shrink:0;width:24px;text-align:center}
 .ni-lb{font-size:12px;font-weight:600;letter-spacing:.02em}
 .ni-bd{margin-left:auto;background:rgba(255,255,255,.08);border-radius:10px;padding:1px 6px;font-size:9px;font-weight:700;flex-shrink:0}
@@ -91,7 +93,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .brand-s{font-size:10px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase}
 .hdr-meta{display:flex;align-items:center;gap:10px;margin-left:auto}
 /* top switcher */
-.tsw{display:flex;gap:3px;background:var(--bg-card);border:1px solid var(--border-hi);border-radius:100px;padding:3px}
+.tsw{display:flex;gap:3px;background:var(--bg-card);border:1px solid var(--border-hi);border-radius:100px;padding:3px;flex-wrap:wrap;justify-content:center;max-width:min(520px,42vw)}
 .tbtn{background:none;border:none;border-radius:100px;padding:4px 10px;font-family:var(--fn);font-size:10px;font-weight:700;letter-spacing:.05em;cursor:pointer;transition:all .2s;color:var(--text-sec);white-space:nowrap}
 .tbtn:hover{color:var(--text-primary)}
 .tbtn.on[data-t="ai"]     {background:var(--ai-dim);color:var(--ai-acc)}
@@ -100,6 +102,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .tbtn.on[data-t="defence"]{background:var(--df-dim);color:var(--df-acc)}
 .tbtn.on[data-t="pharma"] {background:var(--ph-dim);color:var(--ph-acc)}
 .tbtn.on[data-t="bh"]     {background:var(--bh-dim);color:var(--bh-acc)}
+.tbtn.on[data-t="pli"]    {background:var(--pli-dim);color:var(--pli-acc)}
 .mkt-st{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
 .mkt-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 2s infinite}
 .mkt-dot.off{background:var(--text-muted);box-shadow:none;animation:none}
@@ -322,6 +325,7 @@ body.lm{
   --df-acc:#7c3aed;--df-dim:rgba(124,58,237,.1);--df-bd:rgba(124,58,237,.3);
   --ph-acc:#be185d;--ph-dim:rgba(190,24,93,.1);--ph-bd:rgba(190,24,93,.3);
   --bh-acc:#92400e;--bh-dim:rgba(146,64,14,.1);--bh-bd:rgba(146,64,14,.3);
+  --pli-acc:#0f766e;--pli-dim:rgba(15,118,110,.10);--pli-bd:rgba(15,118,110,.30);
 }
 body.lm::before{background-image:none}
 body.lm #hdr{background:rgba(237,234,226,.97);box-shadow:0 1px 4px rgba(0,0,0,.06)}
@@ -354,74 +358,6 @@ body.lm tbody tr:hover{background:#e8e4da}
 .scard .r,
 .scard-ch.r,
 .spct.r { color:#FF2C2C !important; }
-
-
-
-/* ═══ TRACKER CONTENT TABS + STICKY KPI HEADER ═══════════════════════
-   Converts each tracker from stacked sections to four tabs:
-   NSE Universe · Segment Performance · Segment Heatmap · Screener.
-   The active tracker KPI cards stay pinned under the global header while
-   the selected tab content scrolls below it.
-═══════════════════════════════════════════════════════════════════════ */
-.tracker-fixed{
-  position:sticky;
-  top:58px;
-  z-index:120;
-  margin:-20px -24px 18px;
-  padding:14px 24px 12px;
-  background:linear-gradient(180deg,rgba(7,7,13,.98) 0%,rgba(7,7,13,.94) 78%,rgba(7,7,13,.72) 100%);
-  backdrop-filter:blur(18px);
-  border-bottom:1px solid var(--border);
-  box-shadow:0 12px 28px rgba(0,0,0,.22);
-}
-.tracker-fixed .kpi-row{margin-bottom:12px}
-.main-tabbar{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  overflow-x:auto;
-  padding:2px 0 4px;
-  scrollbar-width:thin;
-}
-.main-tabbar::-webkit-scrollbar{height:4px}
-.main-tabbar::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:2px}
-.main-tab{
-  display:inline-flex;
-  align-items:center;
-  gap:7px;
-  flex:0 0 auto;
-  background:var(--bg-card);
-  border:1px solid var(--border-hi);
-  color:var(--text-sec);
-  border-radius:100px;
-  padding:8px 14px;
-  font-family:var(--fn);
-  font-size:11px;
-  font-weight:800;
-  letter-spacing:.05em;
-  text-transform:uppercase;
-  cursor:pointer;
-  transition:all .18s ease;
-}
-.main-tab:hover{border-color:var(--acc);color:var(--acc);background:var(--acc-dim)}
-.main-tab.on{background:var(--acc-dim);border-color:var(--acc);color:var(--acc);box-shadow:0 0 0 1px var(--acc-bd) inset}
-.tracker-panes{min-width:0;max-width:100%}
-.tracker-pane{display:none;min-width:0;max-width:100%;animation:fadeUp .22s ease both}
-.tracker-pane.on{display:block}
-.tracker-pane[data-pane="perf"] .sh{margin-top:0}
-.tracker-pane[data-pane="heatmap"] .hmw,
-.tracker-pane[data-pane="screener"] .scrw{margin-top:0}
-.tracker-pane .tw,.tracker-pane .srow,.tracker-pane .hmw,.tracker-pane .scrw{margin-bottom:0}
-body.lm .tracker-fixed{
-  background:linear-gradient(180deg,rgba(237,234,226,.98) 0%,rgba(237,234,226,.94) 78%,rgba(237,234,226,.72) 100%);
-  box-shadow:0 8px 18px rgba(0,0,0,.08);
-}
-@media(max-width:1200px){.tracker-fixed .kpi-row{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:768px){
-  .tracker-fixed{top:58px;margin:-14px -12px 14px;padding:10px 12px 10px}
-  .tracker-fixed .kpi-row{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
-  .main-tab{padding:7px 11px;font-size:10px}
-}
 
 /* ═══ RESPONSIVE ═══════════════════════════════════════════ */
 @media(max-width:1200px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
@@ -628,73 +564,15 @@ body.lm .tracker-fixed{
 #tp-bh .tsc > table{min-width:980px}
 #tp-bh .cn{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #tp-bh .sp{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+#tp-pli .tsc > table{min-width:980px}
+#tp-pli .cn{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#tp-pli .sp{max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
 
 @media (max-width: 760px){
   #mw,#mw.col{margin-left:var(--sc);width:calc(100vw - var(--sc));max-width:calc(100vw - var(--sc));flex-basis:calc(100vw - var(--sc))}
   #hdr,#mw.col #hdr{left:var(--sc);padding:0 12px}
   .ctn{padding:14px 12px 28px}
   .thb,.hmw-hd,.scr-hd{padding-left:12px;padding-right:12px}
-}
-
-
-/* ═══ USER REQUEST FIX: FIXED KPI/TABS, VISIBLE SECTOR CHIPS, TOP SPACING ═══
-   1) Tightens the gap between the fixed header and KPI cards.
-   2) Keeps KPI cards + main tabs pinned under the app header while scrolling.
-   3) Keeps NSE sector chips visible below the pinned card/tab area.
-   4) Adds breathing room above table/card headers across all tabs.
-═══════════════════════════════════════════════════════════════════════ */
-#mw{padding-top:58px}
-.ctn{padding-top:6px}
-.tracker-fixed{
-  top:58px;
-  margin:-6px -24px 12px;
-  padding:8px 24px 10px;
-  z-index:145;
-}
-.tracker-fixed .kpi-row{margin-bottom:10px}
-.tracker-fixed .kc{padding:12px 16px}
-.main-tabbar{padding:0 0 2px}
-.tracker-panes{
-  padding-top:12px;
-  min-width:0;
-  max-width:100%;
-}
-.tracker-pane[data-pane="nse"] .sec-nav{
-  position:sticky;
-  top:calc(58px + var(--tracker-fixed-h, 142px));
-  z-index:130;
-  margin:0 -2px 14px;
-  padding:8px 2px 10px;
-  background:linear-gradient(180deg,rgba(7,7,13,.98),rgba(7,7,13,.94));
-  border-bottom:1px solid var(--border);
-  backdrop-filter:blur(16px);
-}
-.tracker-pane .tw,
-.tracker-pane .hmw,
-.tracker-pane .scrw{
-  margin-top:8px;
-}
-.tracker-pane[data-pane="perf"] .sh{
-  padding-top:8px;
-  margin-bottom:14px;
-}
-.thb{padding-top:16px;padding-bottom:14px}
-.hmw-hd,.scr-hd{
-  padding:8px 0 10px;
-  margin-bottom:12px;
-}
-thead th,.hm-t thead th,.scr-tbl thead th{
-  padding-top:13px;
-  padding-bottom:12px;
-}
-body.lm .tracker-pane[data-pane="nse"] .sec-nav{
-  background:linear-gradient(180deg,rgba(237,234,226,.98),rgba(237,234,226,.94));
-}
-@media(max-width:768px){
-  .ctn{padding-top:4px}
-  .tracker-fixed{margin:-4px -12px 10px;padding:8px 12px 9px}
-  .tracker-pane[data-pane="nse"] .sec-nav{top:calc(58px + var(--tracker-fixed-h, 220px));}
-  .tracker-panes{padding-top:10px}
 }
 
 </style>
@@ -718,6 +596,7 @@ body.lm .tracker-pane[data-pane="nse"] .sec-nav{
     <div class="ni"    data-t="defence" data-tip="Defence &amp; Aerospace" onclick="switchT('defence',this)"><span class="ni-ic">🛡</span><span class="ni-lb">Defence &amp; Aerospace</span><span class="ni-bd" id="bd-defence">—</span></div>
     <div class="ni"    data-t="pharma"  data-tip="Pharma &amp; Biotech"   onclick="switchT('pharma',this)"> <span class="ni-ic">💊</span><span class="ni-lb">Pharma &amp; Biotech</span><span class="ni-bd" id="bd-pharma">—</span></div>
     <div class="ni"    data-t="bh"      data-tip="Business Houses"         onclick="switchT('bh',this)">    <span class="ni-ic">🏛</span><span class="ni-lb">Business Houses</span>   <span class="ni-bd" id="bd-bh">—</span></div>
+    <div class="ni"    data-t="pli"     data-tip="PLI Sectors"             onclick="switchT('pli',this)">   <span class="ni-ic">🏭</span><span class="ni-lb">PLI Sectors</span>       <span class="ni-bd" id="bd-pli">—</span></div>
     <div class="sb-div"></div>
     <div class="sb-sec">Market</div>
     <div class="ni" style="cursor:default" data-tip="Market Status">
@@ -751,6 +630,7 @@ body.lm .tracker-pane[data-pane="nse"] .sec-nav{
           <button class="tbtn"    data-t="defence" onclick="switchT('defence',null)">🛡 Defence</button>
           <button class="tbtn"    data-t="pharma"  onclick="switchT('pharma',null)">💊 Pharma</button>
           <button class="tbtn"    data-t="bh"      onclick="switchT('bh',null)">🏛 BH</button>
+          <button class="tbtn"    data-t="pli"     onclick="switchT('pli',null)">🏭 PLI</button>
         </div>
         <div class="mkt-st"><div class="mkt-dot" id="mkt-dot"></div><span id="mkt-lb">NSE</span></div>
         <div class="hdr-clk" id="clk">--:--:-- IST</div>
@@ -785,7 +665,7 @@ body.lm .tracker-pane[data-pane="nse"] .sec-nav{
     <div class="kc"><div class="kc-lb">Losers Today</div><div class="kv r" id="ai-l">—</div></div>
     <div class="kc"><div class="kc-lb">Top Gainer</div><div class="kv g" id="ai-tg" style="font-size:16px">—</div><div class="ks" id="ai-tgn">—</div></div>
     <div class="kc"><div class="kc-lb">Top Loser</div><div class="kv r" id="ai-tl" style="font-size:16px">—</div><div class="ks" id="ai-tln">—</div></div>
-    <div class="kc"><div class="kc-lb">Avg Segment Chg</div><div class="kv" id="ai-avg">—</div></div>
+    <div class="kc"><div class="kc-lb">Avg Sector Chg</div><div class="kv" id="ai-avg">—</div></div>
   </div>
   <div class="sec-nav" id="sn-ai"></div>
   <div class="tw"><div class="thb"><span>NSE Universe · AI &amp; Data Center</span><span id="ai-vc" style="color:var(--text-sec)">Loading…</span></div>
@@ -795,10 +675,10 @@ body.lm .tracker-pane[data-pane="nse"] .sec-nav{
     <th data-col="high" class="num" data-t="ai">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="ai">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="ai">Volume <span class="sa">↕</span></th>
     <th data-col="week52_high" class="num" data-t="ai">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="ai">52W Lo <span class="sa">↕</span></th><th>7D</th>
   </tr></thead><tbody id="tb-ai"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
-  <div class="sh">Segment Performance</div><div class="srow"><div class="sgrid" id="sg-ai"></div></div>
-  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Segment <em>Heatmap</em></div><div class="hmw-s">Mean Return Per Segment × Timeframe</div></div>
+  <div class="sh">Sector Performance</div><div class="srow"><div class="sgrid" id="sg-ai"></div></div>
+  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Sector <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Sector × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-ai"><thead><tr>
-    <th data-hm="sector" data-t="ai" class="hs">Segment A–Z <span class="ha">↑</span></th>
+    <th data-hm="sector" data-t="ai" class="hs">Sector A–Z <span class="ha">↑</span></th>
     <th data-hm="ret_1d" data-t="ai">1D <span class="ha">↕</span></th><th data-hm="ret_1w" data-t="ai">1W <span class="ha">↕</span></th><th data-hm="ret_1m" data-t="ai">1M <span class="ha">↕</span></th><th data-hm="ret_1y" data-t="ai">1Y <span class="ha">↕</span></th>
   </tr></thead><tbody id="hmb-ai"><tr><td colspan="5"><div class="sk" style="width:100%;height:36px;border-radius:6px;margin:4px 0"></div></td></tr></tbody></table></div>
   <div class="hm-leg"><div class="hm-leg-l"><span class="hm-leg-lb">Legend</span><div class="hm-leg-i"><span class="hm-leg-sw hd75">&lt;-75%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hd30">-30%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hn" style="border:1px solid #bbb">0</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hh5">+30%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hh75">&gt;+75%</span></div></div><div class="hm-leg-r">Click headers to sort</div></div></div></div>
@@ -830,7 +710,7 @@ body.lm .tracker-pane[data-pane="nse"] .sec-nav{
     <th data-col="week52_high" class="num" data-t="ev">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="ev">52W Lo <span class="sa">↕</span></th><th>7D</th>
   </tr></thead><tbody id="tb-ev"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
   <div class="sh">Segment Performance</div><div class="srow"><div class="sgrid" id="sg-ev"></div></div>
-  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Segment <em>Heatmap</em></div><div class="hmw-s">Mean Return Per Segment × Timeframe</div></div>
+  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Segment <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Segment × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-ev"><thead><tr>
     <th data-hm="sector" data-t="ev" class="hs">Segment A–Z <span class="ha">↑</span></th>
     <th data-hm="ret_1d" data-t="ev">1D <span class="ha">↕</span></th><th data-hm="ret_1w" data-t="ev">1W <span class="ha">↕</span></th><th data-hm="ret_1m" data-t="ev">1M <span class="ha">↕</span></th><th data-hm="ret_1y" data-t="ev">1Y <span class="ha">↕</span></th>
@@ -853,7 +733,7 @@ body.lm .tracker-pane[data-pane="nse"] .sec-nav{
     <div class="kc"><div class="kc-lb">Losers Today</div><div class="kv r" id="en-l">—</div></div>
     <div class="kc"><div class="kc-lb">Top Gainer</div><div class="kv g" id="en-tg" style="font-size:16px">—</div><div class="ks" id="en-tgn">—</div></div>
     <div class="kc"><div class="kc-lb">Top Loser</div><div class="kv r" id="en-tl" style="font-size:16px">—</div><div class="ks" id="en-tln">—</div></div>
-    <div class="kc"><div class="kc-lb">Avg Segment Chg</div><div class="kv" id="en-avg">—</div></div>
+    <div class="kc"><div class="kc-lb">Avg Sector Chg</div><div class="kv" id="en-avg">—</div></div>
   </div>
   <div class="sec-nav" id="sn-en"></div>
   <div class="tw"><div class="thb"><span>NSE Universe · Energy Stocks</span><span id="en-vc" style="color:var(--text-sec)">Loading…</span></div>
@@ -863,10 +743,10 @@ body.lm .tracker-pane[data-pane="nse"] .sec-nav{
     <th data-col="high" class="num" data-t="en">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="en">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="en">Volume <span class="sa">↕</span></th>
     <th data-col="week52_high" class="num" data-t="en">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="en">52W Lo <span class="sa">↕</span></th><th>7D</th>
   </tr></thead><tbody id="tb-en"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
-  <div class="sh">Segment Performance</div><div class="srow"><div class="sgrid" id="sg-en"></div></div>
-  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Segment <em>Heatmap</em></div><div class="hmw-s">Mean Return Per Segment × Timeframe</div></div>
+  <div class="sh">Sector Performance</div><div class="srow"><div class="sgrid" id="sg-en"></div></div>
+  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Sector <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Sector × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-en"><thead><tr>
-    <th data-hm="sector" data-t="en" class="hs">Segment A–Z <span class="ha">↑</span></th>
+    <th data-hm="sector" data-t="en" class="hs">Sector A–Z <span class="ha">↑</span></th>
     <th data-hm="ret_1d" data-t="en">1D <span class="ha">↕</span></th><th data-hm="ret_1w" data-t="en">1W <span class="ha">↕</span></th><th data-hm="ret_1m" data-t="en">1M <span class="ha">↕</span></th><th data-hm="ret_1y" data-t="en">1Y <span class="ha">↕</span></th>
   </tr></thead><tbody id="hmb-en"><tr><td colspan="5"><div class="sk" style="width:100%;height:36px;border-radius:6px;margin:4px 0"></div></td></tr></tbody></table></div>
   <div class="hm-leg"><div class="hm-leg-l"><span class="hm-leg-lb">Legend</span><div class="hm-leg-i"><span class="hm-leg-sw hd75">&lt;-75%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hn" style="border:1px solid #bbb">0</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hh75">&gt;+75%</span></div></div><div class="hm-leg-r">Click headers to sort</div></div></div></div>
@@ -887,7 +767,7 @@ body.lm .tracker-pane[data-pane="nse"] .sec-nav{
     <div class="kc"><div class="kc-lb">Losers Today</div><div class="kv r" id="defence-l">—</div></div>
     <div class="kc"><div class="kc-lb">Top Gainer</div><div class="kv g" id="defence-tg" style="font-size:16px">—</div><div class="ks" id="defence-tgn">—</div></div>
     <div class="kc"><div class="kc-lb">Top Loser</div><div class="kv r" id="defence-tl" style="font-size:16px">—</div><div class="ks" id="defence-tln">—</div></div>
-    <div class="kc"><div class="kc-lb">Avg Segment Chg</div><div class="kv" id="defence-avg">—</div></div>
+    <div class="kc"><div class="kc-lb">Avg Sub-Sector Chg</div><div class="kv" id="defence-avg">—</div></div>
   </div>
   <div class="sec-nav" id="sn-defence"></div>
   <div class="tw"><div class="thb"><span>NSE · BSE Universe · Defence &amp; Aerospace</span><span id="defence-vc" style="color:var(--text-sec)">Loading…</span></div>
@@ -897,10 +777,10 @@ body.lm .tracker-pane[data-pane="nse"] .sec-nav{
     <th data-col="high" class="num" data-t="defence">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="defence">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="defence">Volume <span class="sa">↕</span></th>
     <th data-col="week52_high" class="num" data-t="defence">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="defence">52W Lo <span class="sa">↕</span></th><th>7D</th>
   </tr></thead><tbody id="tb-defence"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr></tbody></table></div></div>
-  <div class="sh">Segment Performance</div><div class="srow"><div class="sgrid" id="sg-defence"></div></div>
-  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Segment <em>Heatmap</em></div><div class="hmw-s">Mean Return Per Segment × Timeframe</div></div>
+  <div class="sh">Sub-Sector Performance</div><div class="srow"><div class="sgrid" id="sg-defence"></div></div>
+  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Sub-Sector <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Sub-Sector × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-defence"><thead><tr>
-    <th data-hm="sector" data-t="defence" class="hs">Sub-Segment A–Z <span class="ha">↑</span></th>
+    <th data-hm="sector" data-t="defence" class="hs">Sub-Sector A–Z <span class="ha">↑</span></th>
     <th data-hm="ret_1d" data-t="defence">1D <span class="ha">↕</span></th><th data-hm="ret_1w" data-t="defence">1W <span class="ha">↕</span></th><th data-hm="ret_1m" data-t="defence">1M <span class="ha">↕</span></th><th data-hm="ret_1y" data-t="defence">1Y <span class="ha">↕</span></th>
   </tr></thead><tbody id="hmb-defence"><tr><td colspan="5"><div class="sk" style="width:100%;height:36px;border-radius:6px;margin:4px 0"></div></td></tr></tbody></table></div>
   <div class="hm-leg"><div class="hm-leg-l"><span class="hm-leg-lb">Legend</span><div class="hm-leg-i"><span class="hm-leg-sw hd75">&lt;-75%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hn" style="border:1px solid #bbb">0</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hh75">&gt;+75%</span></div></div><div class="hm-leg-r">Click headers to sort</div></div></div></div>
@@ -932,7 +812,7 @@ body.lm .tracker-pane[data-pane="nse"] .sec-nav{
     <th data-col="week52_high" class="num" data-t="pharma">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="pharma">52W Lo <span class="sa">↕</span></th><th>7D</th>
   </tr></thead><tbody id="tb-pharma"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:95%"></div></td></tr></tbody></table></div></div>
   <div class="sh">Segment Performance</div><div class="srow"><div class="sgrid" id="sg-pharma"></div></div>
-  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Segment <em>Heatmap</em></div><div class="hmw-s">Mean Return Per Segment × Timeframe</div></div>
+  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Segment <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Segment × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-pharma"><thead><tr>
     <th data-hm="sector" data-t="pharma" class="hs">Segment A–Z <span class="ha">↑</span></th>
     <th data-hm="ret_1d" data-t="pharma">1D <span class="ha">↕</span></th><th data-hm="ret_1w" data-t="pharma">1W <span class="ha">↕</span></th><th data-hm="ret_1m" data-t="pharma">1M <span class="ha">↕</span></th><th data-hm="ret_1y" data-t="pharma">1Y <span class="ha">↕</span></th>
@@ -954,7 +834,7 @@ body.lm .tracker-pane[data-pane="nse"] .sec-nav{
     <div class="kc"><div class="kc-lb">Losers Today</div><div class="kv r" id="bh-l">—</div></div>
     <div class="kc"><div class="kc-lb">Top Gainer</div><div class="kv g" id="bh-tg" style="font-size:16px">—</div><div class="ks" id="bh-tgn">—</div></div>
     <div class="kc"><div class="kc-lb">Top Loser</div><div class="kv r" id="bh-tl" style="font-size:16px">—</div><div class="ks" id="bh-tln">—</div></div>
-    <div class="kc"><div class="kc-lb">Avg Segment Chg</div><div class="kv" id="bh-avg">—</div></div>
+    <div class="kc"><div class="kc-lb">Avg Group Chg</div><div class="kv" id="bh-avg">—</div></div>
   </div>
   <div class="sec-nav" id="sn-bh"></div>
   <div class="tw"><div class="thb"><span>NSE Universe · Business Houses</span><span id="bh-vc" style="color:var(--text-sec)">Loading…</span></div>
@@ -964,10 +844,10 @@ body.lm .tracker-pane[data-pane="nse"] .sec-nav{
     <th data-col="high" class="num" data-t="bh">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="bh">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="bh">Volume <span class="sa">↕</span></th>
     <th data-col="week52_high" class="num" data-t="bh">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="bh">52W Lo <span class="sa">↕</span></th><th>7D</th>
   </tr></thead><tbody id="tb-bh"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:95%"></div></td></tr></tbody></table></div></div>
-  <div class="sh">Segment Performance</div><div class="srow"><div class="sgrid" id="sg-bh"></div></div>
-  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Segment <em>Heatmap</em></div><div class="hmw-s">Mean Return Per Segment × Timeframe</div></div>
+  <div class="sh">Group Performance</div><div class="srow"><div class="sgrid" id="sg-bh"></div></div>
+  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ Group <em>Heat Map</em></div><div class="hmw-s">Mean Return Per Group × Timeframe</div></div>
   <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-bh"><thead><tr>
-    <th data-hm="sector" data-t="bh" class="hs">Segment A–Z <span class="ha">↑</span></th>
+    <th data-hm="sector" data-t="bh" class="hs">Group A–Z <span class="ha">↑</span></th>
     <th data-hm="ret_1d" data-t="bh">1D <span class="ha">↕</span></th><th data-hm="ret_1w" data-t="bh">1W <span class="ha">↕</span></th><th data-hm="ret_1m" data-t="bh">1M <span class="ha">↕</span></th><th data-hm="ret_1y" data-t="bh">1Y <span class="ha">↕</span></th>
   </tr></thead><tbody id="hmb-bh"><tr><td colspan="5"><div class="sk" style="width:100%;height:36px;border-radius:6px;margin:4px 0"></div></td></tr></tbody></table></div>
   <div class="hm-leg"><div class="hm-leg-l"><span class="hm-leg-lb">Legend</span><div class="hm-leg-i"><span class="hm-leg-sw hd75">&lt;-75%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hd30">-30%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hn" style="border:1px solid #bbb">0</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hh5">+30%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hh75">&gt;+75%</span></div></div><div class="hm-leg-r">Click headers to sort</div></div></div></div>
@@ -979,6 +859,40 @@ body.lm .tracker-pane[data-pane="nse"] .sec-nav{
   <div class="scr-leg"><span class="scr-leg-lb">Color Scale:</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#FF2C2C"></div>&lt;−75%</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#FF4141"></div>−30%</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#DADBDD;border:1px solid #bbb"></div>0</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#6CC284"></div>+30%</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#2E6F40"></div>&gt;+75%</div></div>
   </div></div>
 </div><!-- /tp-bh -->
+
+<div class="tp" id="tp-pli">
+  <div class="err" id="err-pli">⚠ Unable to load PLI sector data.</div>
+  <div class="kpi-row">
+    <div class="kc"><div class="kc-lb">Stocks Tracked</div><div class="kv a" id="pli-t">—</div></div>
+    <div class="kc"><div class="kc-lb">Gainers Today</div><div class="kv g" id="pli-g">—</div></div>
+    <div class="kc"><div class="kc-lb">Losers Today</div><div class="kv r" id="pli-l">—</div></div>
+    <div class="kc"><div class="kc-lb">Top Gainer</div><div class="kv g" id="pli-tg" style="font-size:16px">—</div><div class="ks" id="pli-tgn">—</div></div>
+    <div class="kc"><div class="kc-lb">Top Loser</div><div class="kv r" id="pli-tl" style="font-size:16px">—</div><div class="ks" id="pli-tln">—</div></div>
+    <div class="kc"><div class="kc-lb">Avg Sector Chg</div><div class="kv" id="pli-avg">—</div></div>
+  </div>
+  <div class="sec-nav" id="sn-pli"></div>
+  <div class="tw"><div class="thb"><span>NSE Universe · PLI Sectors</span><span id="pli-vc" style="color:var(--text-sec)">Loading…</span></div>
+  <div class="tsc"><table><thead><tr>
+    <th>#</th><th data-col="name" data-t="pli">Company <span class="sa">↕</span></th><th data-col="ticker" data-t="pli">Ticker <span class="sa">↕</span></th><th data-col="sector" data-t="pli">Sector <span class="sa">↕</span></th>
+    <th data-col="price" class="num" data-t="pli">Price ₹ <span class="sa">↕</span></th><th data-col="change" class="num" data-t="pli">Chg ₹ <span class="sa">↕</span></th><th data-col="change_pct" class="num srt" data-t="pli">Chg % <span class="sa">↓</span></th>
+    <th data-col="high" class="num" data-t="pli">Day Hi <span class="sa">↕</span></th><th data-col="low" class="num" data-t="pli">Day Lo <span class="sa">↕</span></th><th data-col="volume" class="num" data-t="pli">Volume <span class="sa">↕</span></th>
+    <th data-col="week52_high" class="num" data-t="pli">52W Hi <span class="sa">↕</span></th><th data-col="week52_low" class="num" data-t="pli">52W Lo <span class="sa">↕</span></th><th>7D</th>
+  </tr></thead><tbody id="tb-pli"><tr><td colspan="13"><div class="sk" style="width:100%;margin:8px 0"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:90%"></div></td></tr><tr><td colspan="13"><div class="sk" style="width:95%"></div></td></tr></tbody></table></div></div>
+  <div class="sh">PLI Sector Performance</div><div class="srow"><div class="sgrid" id="sg-pli"></div></div>
+  <div class="hmw"><div class="hmw-hd"><div class="hmw-t">⊞ PLI Sector <em>Heat Map</em></div><div class="hmw-s">Mean Return Per PLI Sector × Timeframe</div></div>
+  <div class="hm-box"><div class="hm-sc"><table class="hm-t" id="hm-pli"><thead><tr>
+    <th data-hm="sector" data-t="pli" class="hs">Sector A–Z <span class="ha">↑</span></th>
+    <th data-hm="ret_1d" data-t="pli">1D <span class="ha">↕</span></th><th data-hm="ret_1w" data-t="pli">1W <span class="ha">↕</span></th><th data-hm="ret_1m" data-t="pli">1M <span class="ha">↕</span></th><th data-hm="ret_1y" data-t="pli">1Y <span class="ha">↕</span></th>
+  </tr></thead><tbody id="hmb-pli"><tr><td colspan="5"><div class="sk" style="width:100%;height:36px;border-radius:6px;margin:4px 0"></div></td></tr></tbody></table></div>
+  <div class="hm-leg"><div class="hm-leg-l"><span class="hm-leg-lb">Legend</span><div class="hm-leg-i"><span class="hm-leg-sw hd75">&lt;-75%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hd30">-30%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hn" style="border:1px solid #bbb">0</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hh5">+30%</span></div><span class="hm-leg-sep">·</span><div class="hm-leg-i"><span class="hm-leg-sw hh75">&gt;+75%</span></div></div><div class="hm-leg-r">Click headers to sort</div></div></div></div>
+  <div class="scrw"><div class="scr-hd"><div class="scr-t">📊 PLI Sector <span>Screener</span></div><div class="scr-cnt" id="sc-pli">Loading…</div></div>
+  <div class="scr-box"><div class="scr-sc"><table class="scr-tbl" id="scrt-pli"><thead><tr>
+    <th data-sc="ticker" data-t="pli">Ticker <span class="sar">↕</span></th><th data-sc="name" data-t="pli">Company <span class="sar">↕</span></th><th data-sc="sector" data-t="pli">Sector <span class="sar">↕</span></th>
+    <th data-sc="price" class="nh" data-t="pli">Price ₹ <span class="sar">↕</span></th><th data-sc="ret_1d" class="nh ss" data-t="pli">1 Day % <span class="sar">↓</span></th><th data-sc="ret_1w" class="nh" data-t="pli">1 Week % <span class="sar">↕</span></th><th data-sc="ret_1m" class="nh" data-t="pli">1 Month % <span class="sar">↕</span></th><th data-sc="ret_1y" class="nh" data-t="pli">1 Year % <span class="sar">↕</span></th>
+  </tr></thead><tbody id="scrb-pli"><tr><td colspan="8"><div class="sk" style="width:100%;height:14px"></div></td></tr></tbody></table></div>
+  <div class="scr-leg"><span class="scr-leg-lb">Color Scale:</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#FF2C2C"></div>&lt;−75%</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#FF4141"></div>−30%</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#DADBDD;border:1px solid #bbb"></div>0</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#6CC284"></div>+30%</div><span class="scr-leg-sep">·</span><div class="scr-leg-i"><div class="scr-leg-sw" style="background:#2E6F40"></div>&gt;+75%</div></div>
+  </div></div>
+</div><!-- /tp-pli -->
 
   </div><!-- /ctn -->
 
@@ -1081,6 +995,13 @@ const CFG = {
       'TVS Group':'🏍️','RPG Group':'🔋','Kalyani Group':'🔧','Bajaj Group':'💰'
     }
   }
+  ,pli: {
+    title:'🏭 India PLI Stock Tracker',
+    tagline:"Tracking production-linked incentive beneficiaries & allied sectors · NSE",
+    acc:'#14b8a6', dim:'rgba(20,184,166,.14)', bd:'rgba(20,184,166,.30)',
+    sectors:['All','Railway Infrastructure','Defence Manufacturing','Electronics Manufacturing','Telecom & Networking','Automobile & Auto Components'],
+    icons:{'Railway Infrastructure':'🚆','Defence Manufacturing':'🛡️','Electronics Manufacturing':'📱','Telecom & Networking':'📡','Automobile & Auto Components':'🚗'}
+  }
 };
 
 /* ── STATE ──────────────────────────────────────────────────── */
@@ -1149,7 +1070,7 @@ function switchT(t,sbEl){
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
   if(S[t].loaded){
     // Already prefetched in background — just render (data is fresh in S[t])
-    renderKPI(t); buildTabs(t); renderTable(t); renderCards(t); refreshTrackerFixedOffsets();
+    renderKPI(t); buildTabs(t); renderTable(t); renderCards(t);
     // Slow data may still be arriving — re-render if already present
     if(S[t].hm.length)  renderHM(t);
     if(S[t].scr.length) renderScr(t);
@@ -1451,7 +1372,7 @@ async function loadT(t){
   });
   document.getElementById('upd').textContent=ts;
   document.getElementById('fref').textContent=ts;
-  renderKPI(t); buildTabs(t); renderTable(t); renderCards(t); refreshTrackerFixedOffsets();
+  renderKPI(t); buildTabs(t); renderTable(t); renderCards(t);
   // fire slow endpoints without blocking the render
   fetchHM(t); fetchScr(t);
   S[t].loaded=true;
@@ -1499,7 +1420,7 @@ async function bgLoadOne(t){
 
     if(curT === t){
       // User switched to this tracker while it was prefetching — render it now
-      renderKPI(t); buildTabs(t); renderTable(t); renderCards(t); refreshTrackerFixedOffsets();
+      renderKPI(t); buildTabs(t); renderTable(t); renderCards(t);
     }
 
     // Step 2 — slow endpoints staggered to stay under rate limits
@@ -1558,7 +1479,7 @@ async function refreshTracker(t){
   try{
     S[t].loaded = false;
     await Promise.all([fetchQ(t), fetchSpark(t)]);
-    renderKPI(t); buildTabs(t); renderTable(t); renderCards(t); refreshTrackerFixedOffsets();
+    renderKPI(t); buildTabs(t); renderTable(t); renderCards(t);
 
     // Refresh slow/derived tables too, but sequentially via runAutoRefresh()
     await fetchHM(t);
@@ -1622,101 +1543,6 @@ function toggleTheme(){
   localStorage.setItem('theme',lm?'light':'dark');
 }
 
-
-
-/* ── CONTENT TABS: NSE Universe · Segment Performance · Heatmap · Screener ── */
-function initTrackerContentTabs(){
-  const labels = [
-    ['nse','NSE Universe','📋'],
-    ['perf','Segment Performance','📈'],
-    ['heatmap','Segment Heatmap','⊞'],
-    ['screener','Screener','📊']
-  ];
-  Object.keys(CFG).forEach(t=>{
-    const panel=document.getElementById('tp-'+t);
-    if(!panel || panel.dataset.tabsReady==='1') return;
-
-    const kpi=panel.querySelector(':scope > .kpi-row');
-    const sectorNav=panel.querySelector(':scope > .sec-nav');
-    const tableWrap=panel.querySelector(':scope > .tw');
-    const perfHeading=panel.querySelector(':scope > .sh');
-    const perfRow=panel.querySelector(':scope > .srow');
-    const heatmap=panel.querySelector(':scope > .hmw');
-    const screener=panel.querySelector(':scope > .scrw');
-    if(!kpi || !tableWrap || !perfRow || !heatmap || !screener) return;
-
-    const fixed=document.createElement('div');
-    fixed.className='tracker-fixed';
-    panel.insertBefore(fixed,kpi);
-    fixed.appendChild(kpi);
-
-    const tabbar=document.createElement('div');
-    tabbar.className='main-tabbar';
-    tabbar.setAttribute('role','tablist');
-    fixed.appendChild(tabbar);
-
-    const panes=document.createElement('div');
-    panes.className='tracker-panes';
-    panel.insertBefore(panes,fixed.nextSibling);
-
-    const paneMap={};
-    labels.forEach(([key,label,icon],idx)=>{
-      const btn=document.createElement('button');
-      btn.type='button';
-      btn.className='main-tab'+(idx===0?' on':'');
-      btn.dataset.pane=key;
-      btn.setAttribute('role','tab');
-      btn.setAttribute('aria-selected',idx===0?'true':'false');
-      btn.innerHTML=`<span>${icon}</span><span>${label}</span>`;
-      tabbar.appendChild(btn);
-
-      const pane=document.createElement('div');
-      pane.className='tracker-pane'+(idx===0?' on':'');
-      pane.dataset.pane=key;
-      pane.setAttribute('role','tabpanel');
-      panes.appendChild(pane);
-      paneMap[key]=pane;
-    });
-
-    if(sectorNav) paneMap.nse.appendChild(sectorNav);
-    paneMap.nse.appendChild(tableWrap);
-    if(perfHeading) paneMap.perf.appendChild(perfHeading);
-    paneMap.perf.appendChild(perfRow);
-    paneMap.heatmap.appendChild(heatmap);
-    paneMap.screener.appendChild(screener);
-
-    tabbar.addEventListener('click',e=>{
-      const btn=e.target.closest('.main-tab');
-      if(!btn) return;
-      const key=btn.dataset.pane;
-      tabbar.querySelectorAll('.main-tab').forEach(b=>{
-        const on=b===btn;
-        b.classList.toggle('on',on);
-        b.setAttribute('aria-selected',on?'true':'false');
-      });
-      panes.querySelectorAll('.tracker-pane').forEach(p=>p.classList.toggle('on',p.dataset.pane===key));
-      try{ sessionStorage.setItem('main_tab_'+t,key); }catch(err){}
-    });
-
-    try{
-      const saved=sessionStorage.getItem('main_tab_'+t);
-      if(saved && paneMap[saved]) tabbar.querySelector(`.main-tab[data-pane="${saved}"]`)?.click();
-    }catch(err){}
-
-    panel.dataset.tabsReady='1';
-  });
-  refreshTrackerFixedOffsets();
-}
-
-function refreshTrackerFixedOffsets(){
-  document.querySelectorAll('.tp').forEach(panel=>{
-    const fixed=panel.querySelector(':scope > .tracker-fixed');
-    if(fixed) panel.style.setProperty('--tracker-fixed-h', fixed.offsetHeight + 'px');
-  });
-}
-window.addEventListener('resize', refreshTrackerFixedOffsets);
-window.addEventListener('load', refreshTrackerFixedOffsets);
-
 /* ── INIT ────────────────────────────────────────────────────── */
 (function(){
   if(localStorage.getItem('theme')!=='dark'){
@@ -1727,12 +1553,115 @@ window.addEventListener('load', refreshTrackerFixedOffsets);
   if(localStorage.getItem('autoRefresh') === null){ localStorage.setItem('autoRefresh','on'); }
   setAutoRefreshUI();
   startAutoRefreshTimer();
-  initTrackerContentTabs();
   setAccent('ai');
   // Load active tracker immediately, then kick off background prefetch
   loadT('ai').then(() => startBgPrefetch('ai'));
 })();
-/* Collapsible section wiring disabled: sections are now controlled by main tracker tabs. */
+/* ═══ COLLAPSIBLE SECTIONS ════════════════════════════════════════════════ */
+(function initCollapsibles() {
+  'use strict';
+
+  var TRACKERS = ['ai','ev','en','defence','pharma','bh','pli'];
+
+  /* read/write session state */
+  function wasOpen(key) {
+    try { var v = sessionStorage.getItem(key); return v === null || v === '1'; }
+    catch(e) { return true; }
+  }
+  function saveState(key, open) {
+    try { sessionStorage.setItem(key, open ? '1' : '0'); } catch(e) {}
+  }
+
+  /* build the ▾ chevron span */
+  function makeChevron(open) {
+    var el = document.createElement('span');
+    el.className = 'sec-chevron' + (open ? ' open' : '');
+    el.textContent = '▾';
+    el.setAttribute('aria-hidden', 'true');
+    return el;
+  }
+
+  /* build the collapsed count chip */
+  function makeChip(text) {
+    var el = document.createElement('span');
+    el.className = 'sec-chip';
+    el.textContent = text;
+    return el;
+  }
+
+  /*
+   * Wire one header ↔ body pair.
+   * headerEl  – the clickable row (.thb / .hmw-hd / .scr-hd)
+   * bodyEl    – the element to show/hide (.tsc / .hm-box / .scr-box)
+   * wrapEl    – outer wrapper for collapsed class (.tw / .hmw / .scrw)
+   * key       – sessionStorage key
+   * chipText  – text shown when collapsed
+   */
+  function wire(headerEl, bodyEl, wrapEl, key, chipText) {
+    var open = wasOpen(key);
+    var chevron = makeChevron(open);
+    var chip    = makeChip(chipText);
+
+    /* append chip then chevron to the right end of the header */
+    headerEl.appendChild(chip);
+    headerEl.appendChild(chevron);
+
+    /* apply initial state */
+    if (!open) {
+      bodyEl.classList.add('sec-hidden');
+      wrapEl.classList.add('sec-collapsed');
+    }
+
+    /* click handler */
+    headerEl.addEventListener('click', function(e) {
+      /* don't fire when clicking a sort-arrow inside the screener header */
+      if (e.target.closest('th')) return;
+
+      var isOpen = !bodyEl.classList.contains('sec-hidden');
+      if (isOpen) {
+        bodyEl.classList.add('sec-hidden');
+        wrapEl.classList.add('sec-collapsed');
+        chevron.classList.remove('open');
+      } else {
+        bodyEl.classList.remove('sec-hidden');
+        wrapEl.classList.remove('sec-collapsed');
+        chevron.classList.add('open');
+      }
+      saveState(key, !isOpen);
+    });
+  }
+
+  /* wire all 5 trackers × 3 section types */
+  TRACKERS.forEach(function(t) {
+    var panel = document.getElementById('tp-' + t);
+    if (!panel) return;
+
+    /* 1 — NSE Universe table */
+    var tw  = panel.querySelector('.tw');
+    if (tw) {
+      var thb = tw.querySelector('.thb');
+      var tsc = tw.querySelector('.tsc');
+      if (thb && tsc) wire(thb, tsc, tw, 'col_tbl_' + t, 'table hidden');
+    }
+
+    /* 2 — Sector / Segment Heat Map */
+    var hmw = panel.querySelector('.hmw');
+    if (hmw) {
+      var hmhd  = hmw.querySelector('.hmw-hd');
+      var hmbox = hmw.querySelector('.hm-box');
+      if (hmhd && hmbox) wire(hmhd, hmbox, hmw, 'col_hm_' + t, 'heatmap hidden');
+    }
+
+    /* 3 — Stock Screener */
+    var scrw = panel.querySelector('.scrw');
+    if (scrw) {
+      var scrhd  = scrw.querySelector('.scr-hd');
+      var scrbox = scrw.querySelector('.scr-box');
+      if (scrhd && scrbox) wire(scrhd, scrbox, scrw, 'col_scr_' + t, 'screener hidden');
+    }
+  });
+
+})();
 
 </script>
 </body>
