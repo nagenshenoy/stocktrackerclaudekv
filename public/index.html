@@ -636,6 +636,67 @@ body.lm .tracker-fixed{
   .thb,.hmw-hd,.scr-hd{padding-left:12px;padding-right:12px}
 }
 
+
+/* ═══ USER REQUEST FIX: FIXED KPI/TABS, VISIBLE SECTOR CHIPS, TOP SPACING ═══
+   1) Tightens the gap between the fixed header and KPI cards.
+   2) Keeps KPI cards + main tabs pinned under the app header while scrolling.
+   3) Keeps NSE sector chips visible below the pinned card/tab area.
+   4) Adds breathing room above table/card headers across all tabs.
+═══════════════════════════════════════════════════════════════════════ */
+#mw{padding-top:58px}
+.ctn{padding-top:6px}
+.tracker-fixed{
+  top:58px;
+  margin:-6px -24px 12px;
+  padding:8px 24px 10px;
+  z-index:145;
+}
+.tracker-fixed .kpi-row{margin-bottom:10px}
+.tracker-fixed .kc{padding:12px 16px}
+.main-tabbar{padding:0 0 2px}
+.tracker-panes{
+  padding-top:12px;
+  min-width:0;
+  max-width:100%;
+}
+.tracker-pane[data-pane="nse"] .sec-nav{
+  position:sticky;
+  top:calc(58px + var(--tracker-fixed-h, 142px));
+  z-index:130;
+  margin:0 -2px 14px;
+  padding:8px 2px 10px;
+  background:linear-gradient(180deg,rgba(7,7,13,.98),rgba(7,7,13,.94));
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(16px);
+}
+.tracker-pane .tw,
+.tracker-pane .hmw,
+.tracker-pane .scrw{
+  margin-top:8px;
+}
+.tracker-pane[data-pane="perf"] .sh{
+  padding-top:8px;
+  margin-bottom:14px;
+}
+.thb{padding-top:16px;padding-bottom:14px}
+.hmw-hd,.scr-hd{
+  padding:8px 0 10px;
+  margin-bottom:12px;
+}
+thead th,.hm-t thead th,.scr-tbl thead th{
+  padding-top:13px;
+  padding-bottom:12px;
+}
+body.lm .tracker-pane[data-pane="nse"] .sec-nav{
+  background:linear-gradient(180deg,rgba(237,234,226,.98),rgba(237,234,226,.94));
+}
+@media(max-width:768px){
+  .ctn{padding-top:4px}
+  .tracker-fixed{margin:-4px -12px 10px;padding:8px 12px 9px}
+  .tracker-pane[data-pane="nse"] .sec-nav{top:calc(58px + var(--tracker-fixed-h, 220px));}
+  .tracker-panes{padding-top:10px}
+}
+
 </style>
 </head>
 <body>
@@ -1088,7 +1149,7 @@ function switchT(t,sbEl){
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
   if(S[t].loaded){
     // Already prefetched in background — just render (data is fresh in S[t])
-    renderKPI(t); buildTabs(t); renderTable(t); renderCards(t);
+    renderKPI(t); buildTabs(t); renderTable(t); renderCards(t); refreshTrackerFixedOffsets();
     // Slow data may still be arriving — re-render if already present
     if(S[t].hm.length)  renderHM(t);
     if(S[t].scr.length) renderScr(t);
@@ -1390,7 +1451,7 @@ async function loadT(t){
   });
   document.getElementById('upd').textContent=ts;
   document.getElementById('fref').textContent=ts;
-  renderKPI(t); buildTabs(t); renderTable(t); renderCards(t);
+  renderKPI(t); buildTabs(t); renderTable(t); renderCards(t); refreshTrackerFixedOffsets();
   // fire slow endpoints without blocking the render
   fetchHM(t); fetchScr(t);
   S[t].loaded=true;
@@ -1438,7 +1499,7 @@ async function bgLoadOne(t){
 
     if(curT === t){
       // User switched to this tracker while it was prefetching — render it now
-      renderKPI(t); buildTabs(t); renderTable(t); renderCards(t);
+      renderKPI(t); buildTabs(t); renderTable(t); renderCards(t); refreshTrackerFixedOffsets();
     }
 
     // Step 2 — slow endpoints staggered to stay under rate limits
@@ -1497,7 +1558,7 @@ async function refreshTracker(t){
   try{
     S[t].loaded = false;
     await Promise.all([fetchQ(t), fetchSpark(t)]);
-    renderKPI(t); buildTabs(t); renderTable(t); renderCards(t);
+    renderKPI(t); buildTabs(t); renderTable(t); renderCards(t); refreshTrackerFixedOffsets();
 
     // Refresh slow/derived tables too, but sequentially via runAutoRefresh()
     await fetchHM(t);
@@ -1644,7 +1705,17 @@ function initTrackerContentTabs(){
 
     panel.dataset.tabsReady='1';
   });
+  refreshTrackerFixedOffsets();
 }
+
+function refreshTrackerFixedOffsets(){
+  document.querySelectorAll('.tp').forEach(panel=>{
+    const fixed=panel.querySelector(':scope > .tracker-fixed');
+    if(fixed) panel.style.setProperty('--tracker-fixed-h', fixed.offsetHeight + 'px');
+  });
+}
+window.addEventListener('resize', refreshTrackerFixedOffsets);
+window.addEventListener('load', refreshTrackerFixedOffsets);
 
 /* ── INIT ────────────────────────────────────────────────────── */
 (function(){
