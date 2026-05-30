@@ -386,7 +386,6 @@ STOCKS_BH = {
         "Mukand":                "MUKANDLTD.NS",
     },
 }
-
 STOCKS_PLI = {
     "Railway Infrastructure": {
         "Rail Vikas Nigam": "RVNL.NS",
@@ -396,7 +395,7 @@ STOCKS_PLI = {
         "BEML": "BEML.NS",
         "Titagarh Rail Systems": "TITAGARH.NS",
         "IRCTC": "IRCTC.NS",
-        "Container Corp of India": "CONCOR.NS",
+        "Container Corp of India": "CONCOR.NS"
     },
     "Defence Manufacturing": {
         "Hindustan Aeronautics": "HAL.NS",
@@ -412,7 +411,7 @@ STOCKS_PLI = {
         "Mishra Dhatu Nigam": "MIDHANI.NS",
         "MTAR Technologies": "MTARTECH.NS",
         "Dynamatic Technologies": "DYNAMATECH.NS",
-        "Paras Defence & Space": "PARAS.NS",
+        "Paras Defence & Space": "PARAS.NS"
     },
     "Electronics Manufacturing": {
         "Dixon Technologies": "DIXON.NS",
@@ -422,14 +421,14 @@ STOCKS_PLI = {
         "PG Electroplast": "PGEL.NS",
         "Centum Electronics": "CENTUM.NS",
         "Amber Enterprises India": "AMBER.NS",
-        "Avalon Technologies": "AVALON.NS",
+        "Avalon Technologies": "AVALON.NS"
     },
     "Telecom & Networking": {
         "Tejas Networks": "TEJASNET.NS",
         "HFCL": "HFCL.NS",
         "Sterlite Technologies": "STLTECH.NS",
         "ITI": "ITI.NS",
-        "Indus Towers": "INDUSTOWER.NS",
+        "Indus Towers": "INDUSTOWER.NS"
     },
     "Automobile & Auto Components": {
         "Tata Motors": "TMPV.NS",
@@ -440,8 +439,8 @@ STOCKS_PLI = {
         "Ashok Leyland": "ASHOKLEY.NS",
         "Bharat Forge": "BHARATFORG.NS",
         "Bosch": "BOSCHLTD.NS",
-        "Samvardhana Motherson": "MOTHERSON.NS",
-    },
+        "Samvardhana Motherson": "MOTHERSON.NS"
+    }
 }
 
 ALL_STOCKS = {
