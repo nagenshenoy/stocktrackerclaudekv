@@ -1786,3 +1786,76 @@ window.addEventListener('load', refreshTrackerFixedOffsets);
 </script>
 </body>
 </html>
+
+<!-- Header alignment hotfix injected for PLI tracker / all trackers -->
+<style>
+/* Keep header controls in one aligned row even when tracker title is long */
+#hdr .hdr-in{
+  display:grid !important;
+  grid-template-columns:minmax(210px,1fr) auto !important;
+  align-items:center !important;
+  gap:12px !important;
+  height:58px !important;
+}
+#hdr .brand{
+  min-width:0 !important;
+  overflow:hidden !important;
+}
+#hdr .brand-t,
+#hdr .brand-s{
+  display:block !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+}
+#hdr .hdr-meta{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:8px !important;
+  min-width:0 !important;
+  overflow:visible !important;
+}
+#hdr .tsw{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  align-items:center !important;
+  max-width:none !important;
+  border-radius:100px !important;
+  flex:0 1 auto !important;
+}
+#hdr .tbtn{
+  padding:3px 7px !important;
+  font-size:9px !important;
+  letter-spacing:.025em !important;
+}
+#hdr .mkt-st,
+#hdr .hdr-clk,
+#hdr .hdr-ref,
+#hdr .auto-ref,
+#hdr .thm-tog{
+  flex:0 0 auto !important;
+}
+#hdr .hdr-ref{
+  display:flex !important;
+  align-items:center !important;
+  margin:0 !important;
+}
+#hdr .hdr-ref > div:first-child{
+  display:none !important;
+}
+#hdr .auto-ref,
+#hdr .thm-tog{
+  height:28px !important;
+  margin:0 !important;
+}
+@media(max-width:1180px){
+  #hdr .brand{max-width:260px !important;}
+  #hdr .tbtn{padding:3px 6px !important;font-size:8.8px !important;}
+  #hdr .hdr-meta{gap:6px !important;}
+}
+@media(max-width:1040px){
+  #hdr .tsw{display:none !important;}
+}
+</style>
